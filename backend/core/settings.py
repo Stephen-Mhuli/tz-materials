@@ -63,11 +63,15 @@ ASGI_APPLICATION = "core.asgi.application"
 #     }
 # }
 
+import dj_database_url
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL')
+        default=os.environ.get('DATABASE_URL'),
+        engine='django.contrib.gis.db.backends.postgis'
     )
 }
+
 
 
 
