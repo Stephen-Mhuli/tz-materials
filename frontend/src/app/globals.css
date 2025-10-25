@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --page: #f8fafc;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --surface-muted: #e2e8f0;
+  --border-muted: rgba(15, 23, 42, 0.12);
+  --text-primary: #0b1437;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --brand: #0f1e4d;
+  --brand-soft: rgba(15, 30, 77, 0.08);
+  --brand-strong: #274f9c;
+  --accent: linear-gradient(135deg, #0f1e4d 0%, #274f9c 35%, #5aa3ff 100%);
+  --shadow-soft: 0 10px 30px rgba(15, 30, 77, 0.08);
+  --shadow-strong: 0 22px 45px rgba(17, 24, 39, 0.16);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #05060f;
+  --surface: #0f172a;
+  --surface-elevated: #111c33;
+  --surface-muted: #1e293b;
+  --border-muted: rgba(226, 232, 240, 0.16);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5f5;
+  --text-muted: #94a3b8;
+  --brand: #8cb5ff;
+  --brand-soft: rgba(140, 181, 255, 0.12);
+  --brand-strong: #9fc2ff;
+  --accent: linear-gradient(135deg, #203a92 0%, #4f7be7 45%, #8cb5ff 100%);
+  --shadow-soft: 0 16px 36px rgba(8, 18, 51, 0.45);
+  --shadow-strong: 0 24px 60px rgba(9, 13, 34, 0.65);
+}
+
+body {
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+input,
+textarea,
+select {
+  color: var(--text-primary);
+  background-color: var(--surface-elevated);
+  border-color: var(--border-muted);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.bg-page {
+  background-color: var(--page);
+}
+
+.bg-surface {
+  background-color: var(--surface);
+}
+
+.bg-surface-elevated {
+  background-color: var(--surface-elevated);
+}
+
+.bg-brand-soft {
+  background: var(--brand-soft);
+}
+
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.border-muted {
+  border-color: var(--border-muted);
+}
+
+.shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+
+.shadow-strong {
+  box-shadow: var(--shadow-strong);
+}
+
+.brand-gradient {
+  background-image: var(--accent);
+}

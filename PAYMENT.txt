@@ -1,0 +1,36 @@
+  Thank you for this very detailed overview, now I need clarity on a few things, especially on the payment requests and confirmation via webhook, I want to
+  understand what do you mean here and how does this work? who is confirming etc
+
+ Sure—here’s how the payment flow works in this prototype, and how it maps to a real-world integration.
+
+  ### 1. Creating a payment request
+
+  - When a buyer has an order ready (e.g., right from a product page or later in the Payments screen) they can hit the “Create mobile money request” button.
+  - That simply calls our API (POST /api/payments/) and records a Payment object in the database with status pending. Think of this as telling LMGa’s system,
+    “We’ve asked the PSP (e.g., M-Pesa, Tigo Pesa) to charge the buyer.”
+
+  ### 2. Waiting for confirmation
+
+  - In production, the PSP/mobile-money gateway would do the actual charging (e.g., push a prompt to the buyer’s phone) and, once the transaction settles,
+    call back to LMGa’s webhook endpoint (/api/webhooks/payments/) with the result.
+  - The webhook is how the PSP says “this payment succeeded” (or failed). LMGa’s backend updates the stored Payment to success or failed and, if successful,
+    marks the order as confirmed.
+
+  ### 3. Confirming in the prototype
+
+  - Because we’re not actually integrated with a PSP yet, the UI gives you a “Trigger success webhook” button. That just sends a sample JSON payload to /api/
+    webhooks/payments/.
+  - The backend treats it exactly like a PSP notification: finds the payment by its tx_ref, updates its status, and (if success) moves the order to
+    “confirmed”. So for now you are the “PSP” when you press that button—this is purely a simulator.
+
+  ### What would happen in production
+
+  - LMGa would pass the real payment request to the PSP (usually via an API call), log the Payment object, and wait.
+  - The PSP handles customer authentication/charging and calls back to /api/webhooks/payments/ with their official payload.
+  - LMGa’s backend would validate the payload (signature, hash, etc.), update the payment/order, and optionally notify users.
+
+  So the “confirmation via webhook” simply means “we accept the PSP’s transaction result from their callback endpoint.” Right now we simulate it from the UI
+  to keep the loop fully demonstrable without a real PSP contract.
+
+  Let me know if you want to see the exact payloads or tweak the flow to match a specific mobile money provider.
+

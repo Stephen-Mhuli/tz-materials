@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640">
+  <defs>
+    <linearGradient id="steelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4d5966"/>
+      <stop offset="100%" stop-color="#2c3e50"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="640" fill="url(#steelGradient)"/>
+  <path d="M140 540 L220 100 L280 100 L360 540 Z" fill="#5f6e7d" opacity="0.4"/>
+  <path d="M400 540 L480 120 L540 120 L620 540 Z" fill="#8a99a7" opacity="0.35"/>
+  <path d="M660 540 L740 160 L800 160 L880 540 Z" fill="#6c7a89" opacity="0.3"/>
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
+        font-family="Arial, sans-serif" font-size="72" fill="#ecf0f1" opacity="0.85">
+    STEEL
+  </text>
+</svg>

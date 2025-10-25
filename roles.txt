@@ -1,0 +1,57 @@
+So since you mentioned that LMGa are handling tracking, testing, and coordination. What are their role between the 3 roles? and it's okay for buyer and
+  seller to register themselves using the same form and the sellers will be verified, what about the super admin? who can control everything -- is that
+  supposed to be LMGa employee? I would like to understand the flow better
+
+
+• Here’s how the roles line up and how LMGa fits into the picture:
+
+  ### Roles in the current build
+
+  1. Buyer (default app signup)
+      - Typical client contact: site manager, procurement officer.
+      - Can browse the catalogue, create orders, add items, and generate payment requests.
+      - Sees only their own orders and payments.
+  2. Seller Admin (register via same form, choose role)
+      - Represents a supplier partner (possibly an LMGa business unit or a vetted third-party vendor).
+      - After registering, must create their seller profile (/seller) to publish inventory.
+      - Once a seller profile exists, they can add products (/products/new), edit or delete them, and monitor stock.
+  3. Seller Staff
+      - Similar to seller admin but assumes the seller profile already exists (created by a seller admin).
+      - Can maintain catalogue entries and fulfil orders but may have limited authority depending on how you extend the permissions.
+  4. Ops Admin
+      - Think of this as an LMGa internal role. Currently it inherits seller privileges, but you can expand it to include oversight tasks (view all orders,
+        approve seller accounts, manage payments, etc.).
+  5. Superuser (Django admin user)
+      - Your actual “full control” back-office account—intended for LMGa employees who manage the system itself.
+      - Created via python manage.py createsuperuser .... They can log into the Django admin to review all data, manage users, approve or deactivate sellers,
+        trigger manual migrations, etc.
+      - They can also impersonate other roles by changing the role field on user records if needed.
+
+  ### LMGa’s role across the three personas
+
+  - Buyer: LMGa plays the coordinating partner—ensuring materials are real, stock levels meaningful, and logistics execution (delivery windows, cross-docking,
+    QA samples).
+  - Seller Admin/Staff: In many cases these would be LMGa business units (e.g., “LMGa Aggregates depot”) or vetted external suppliers managed under LMGa’s
+    umbrella. LMGa verifies them (the verified flag) before their products appear live.
+  - Ops Admin/Superuser: These are LMGa employees. They maintain the marketplace, approve new seller accounts, reconcile payments, and keep the catalogue
+    clean.
+
+  ### Signup/Verification flow
+
+  - The public registration form is shared because buyers and seller partners alike might start digitally. The difference is the role they pick (buyers
+    default to “buyer”; seller admins choose their role manually; ops admin accounts should be created internally).
+  - Once a seller admin creates their seller profile, an ops admin/superuser can verify them by setting verified=True (or using an approval workflow you add).
+    Until verified, you can hide their products from the public catalogue.
+  - Superuser accounts are created internally and should not be exposed via self-service signup; they’re for LMGa staff only.
+
+  ### Suggested future refinements
+
+  - Distinguish more clearly between LMGa-managed sellers and external partners (perhaps a “pending verification” banner or blocking visibility until
+    verified).
+  - Add role-specific dashboards: e.g., buyer sees fulfilment timelines, seller sees pending orders, ops admin sees health metrics.
+  - Introduce approval steps, e.g., new seller admins trigger an ops-admin review before they can publish.
+  - Lock the “ops_admin” role to internal creation, similar to superuser.
+
+  In summary: public users can pick buyer or seller during signup; LMGa (ops admin/superuser) sits on top to verify, enable, and coordinate. That’s what lets
+  LMGa ensure the supply chain actually runs smoothly while buyers and seller partners get the tools they need.
+

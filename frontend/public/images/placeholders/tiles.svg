@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640">
+  <rect width="960" height="640" fill="#f0e9e3"/>
+  <g fill="none" stroke="#d3c6ba" stroke-width="24">
+    <path d="M0 160h960"/>
+    <path d="M0 320h960"/>
+    <path d="M0 480h960"/>
+    <path d="M320 0v640"/>
+    <path d="M640 0v640"/>
+  </g>
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
+        font-family="Arial, sans-serif" font-size="72" fill="#8d6a52" opacity="0.85">
+    TILES
+  </text>
+</svg>

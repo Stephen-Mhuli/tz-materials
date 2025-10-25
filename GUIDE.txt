@@ -1,0 +1,79 @@
+LMGa Construction Solutions – UI Walkthrough
+===========================================
+
+This guide shows how to exercise the main flows from a fresh database using the
+web interface. Follow the steps in order; each section builds on the previous one.
+
+0. Start the stack
+------------------
+1. `docker compose up --build -d`
+2. `docker compose exec backend python manage.py migrate`
+3. (Optional) `docker compose exec backend python manage.py createsuperuser --phone 255700000000`
+
+1. Register a buyer account
+---------------------------
+Path: `/register`
+- Fill in full name, phone (e.g., `+255700111111`), password, and choose role **Buyer**.
+- Submit the form; you should be redirected to `/dashboard`.
+- Browse `/products` to confirm the catalogue loads.
+
+2. Register a seller admin account
+----------------------------------
+Path: `/register`
+- Use a different phone (e.g., `+255700222222`) and select role **Seller**.
+- After registration you will land on `/dashboard` with seller-focused hints.
+- Navigate to `/seller`; you should see the profile creation form.
+
+3. Complete the seller profile
+------------------------------
+Path: `/seller`
+- Provide business name, business phone, email, and optional address/TIN.
+- Submit the form; the page should switch to a read-only summary card.
+- Switch back to edit mode if you want to tweak details or mark “Verified” (only visible to seller admins).
+
+4. Invite a seller staff member
+-------------------------------
+Path: `/seller` (seller admin only, lower section)
+- In “Invite team member”, enter the helper’s email and phone (e.g., `helper@lmga.co.tz`, `+255700333333`).
+- Click “Send invitation”; the invite should appear in the “Pending invitations” list with a unique link `(/invite/<token>)`.
+- Copy the invite link for the next step.
+
+5. Accept the invitation as seller staff
+----------------------------------------
+Path: `/invite/<token>` (open in a new browser window or private tab)
+- The form auto-fills contact details; add full name and password.
+- Submit to accept. You’ll be logged in and redirected to `/dashboard` as seller staff.
+- Return to `/seller` to confirm read-only access (staff should see profile details but not the edit form).
+
+6. Seller catalogue management
+------------------------------
+Login as the seller admin (from Step 2).
+- Path: `/products/new` – add new products, edit, and delete them.
+- Path: `/products` – locate and verify products appear in the public catalogue.
+- Path: `/orders` – view orders once buyers place them.
+
+7. Buyer ordering flow
+----------------------
+Login with the buyer account created in Step 1.
+- Path: `/products` – open a product, choose quantity, and create the order inline.
+- The order summary shows totals and items; click “Create mobile money request”.
+- Note payment status (starts as pending) and trigger the webhook to confirm it.
+
+8. Payments and webhook testing
+-------------------------------
+Path: `/payments`
+- Review the payment you just created.
+- Trigger the webhook again if needed; the status should change to “success”.
+Path: `/webhooks`
+- Manually post custom JSON payloads to the payments webhook to simulate PSP callbacks.
+
+9. Optional – Admin oversight (requires superuser)
+--------------------------------------------------
+- Access `/admin/` (Django admin) with the superuser credentials.
+- Inspect `Seller`, `SellerUser`, `SellerInvitation`, orders, and payments.
+
+Tips
+----
+- Switch theme via the ☀️/🌙 button in the header.
+- Switch language (EN/SW) from the desktop header, or open the mobile menu to toggle on smaller screens.
+- To restart with clean data: stop the stack, delete `backend/db.sqlite3`, rerun migrations, and repeat the steps above.

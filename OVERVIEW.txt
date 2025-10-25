@@ -1,0 +1,45 @@
+LMGa Construction Solutions: Project Overview
+---------------------------------------------
+
+What is this?
+-------------
+This project is a digital command centre for LMGa Construction Solutions. It helps
+developers, project managers, and procurement teams find the construction materials
+and certified workforce they need, then place, track, and reconcile orders from one
+place.
+
+Key things it can do:
+---------------------
+1. Product catalogue
+   • Browse building materials already vetted by LMGa
+   • See live stock levels, typical pricing, and brand information
+   • Request more details or start an order with one click
+
+2. Project-friendly ordering
+   • Create an order for a specific material straight from its page
+   • Add items, choose delivery options (pickup or scheduled drop-off), and see totals
+   • Generate mobile money payment requests and confirm them via webhook simulation
+
+3. Role-based experience
+   • Buyers see a streamlined flow for sourcing and placing orders
+   • Seller administrators manage their business profile, publish new products, keep inventory
+     up to date, and invite their own staff members into the platform
+   • Operation teams can review orders, payments, and webhook payloads for testing
+
+4. Logistics awareness
+   • Highlights include quality assurance badges, delivery coverage, and compliance notes
+   • The system makes it clear that LMGa handles tracking, testing, and coordination
+
+How it’s presented:
+-------------------
+• Modern website with both light and dark themes
+• Supports English and Swahili, switchable from the header menu
+• Mobile-responsive so site managers and buyers can use it on the go
+• Landing page tells the brand story, showcases service pillars, and links to the live catalogue
+
+Why it matters:
+---------------
+The aim is to reduce friction in the construction supply chain. Instead of juggling calls,
+spreadsheets, and emails, LMGa clients can see available stock, immediately place orders,
+and loop in LMGa logistics and finance teams—all from one unified interface. It’s built
+to inspire confidence, speed up decision-making, and keep large building projects on time.

@@ -1,0 +1,44 @@
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+frontend/.env.local
+frontend/.env.development.local
+frontend/node_modules/
+
+# Node / Next.js build outputs
+frontend/.next/
+frontend/out/
+frontend/build/
+
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+venv/
+.venv/
+backend/.venv/
+
+# Local Django assets
+backend/media/
+backend/staticfiles/
+
+# Logs & coverage
+*.log
+.coverage
+coverage/
+.hypothesis/
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Docker overrides
+docker-compose.override.yml
