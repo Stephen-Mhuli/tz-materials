@@ -17,8 +17,10 @@ INSTALLED_APPS = [
     "django.contrib.admin","django.contrib.auth","django.contrib.contenttypes",
     "django.contrib.sessions","django.contrib.messages","django.contrib.staticfiles",
     "django.contrib.gis",
-    "rest_framework","django_filters","corsheaders","storages","django_extensions",
+    "rest_framework","django_filters","storages","django_extensions",
+    "corsheaders",
     "marketplace",
+    
 ]
 
 MIDDLEWARE = [
@@ -30,7 +32,18 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.common.CommonMiddleware",
 ]
+
+# Optional but useful:
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = ["*"]
+CORS_ALLOW_METHODS = ["DELETE", "GET", "OPTIONS", "PATCH", "POST", "PUT"]
+
+# Futa
+CORS_ALLOW_ALL_ORIGINS = True
+
+
 # Templates configuration (required for Django admin and browsable API)
 TEMPLATES = [
     {
@@ -51,6 +64,12 @@ TEMPLATES = [
 ROOT_URLCONF = "core.urls"
 WSGI_APPLICATION = "core.wsgi.application"
 ASGI_APPLICATION = "core.asgi.application"
+
+CORS_ALLOWED_ORIGINS = [
+    "https://lgma-web.fly.dev",
+    "https://tz-materials-frontend.fly.dev",  # any other frontend
+    "http://localhost:3000",                  # local testing
+]
 
 # DATABASES = {
 #     "default": {
