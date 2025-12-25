@@ -26,3 +26,11 @@ app = "tz-materials-api"
   [[services.tcp_checks]]
     interval = "15s"
     timeout = "2s"
+    
+  [[services.http_checks]]
+    path = "/health/"
+    interval = "15s"
+    timeout = "2s"
+
+[deploy]
+  release_command = "bash -c 'echo Waiting for Postgres... && sleep 15 && python manage.py migrate --noinput'"

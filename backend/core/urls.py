@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from django.http import JsonResponse
 from marketplace.views import (
     SellerViewSet,
     ProductViewSet,
@@ -19,7 +20,11 @@ router.register(r"orders", OrderViewSet, basename="order")
 router.register(r"payments", PaymentViewSet, basename="payment")
 router.register(r"seller-invitations", SellerInvitationViewSet, basename="seller-invitation")
 
+def health_check(request):
+    return JsonResponse({"status": "ok"})
+
 urlpatterns = [
+    path("health/", health_check),
     path("admin/", admin.site.urls),
     path("api/auth/register/", register),
     path("api/auth/login/", login),

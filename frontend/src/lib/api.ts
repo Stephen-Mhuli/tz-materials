@@ -56,6 +56,8 @@ async function apiRequest(
 
   if (!response.ok) {
     const errorText = await response.text();
+    const trimmedError = errorText.trim();
+    const looksLikeHtml = /<!doctype html|<html/i.test(trimmedError);
     let friendly = `Request failed (${response.status} ${response.statusText})`;
     let detail: string | undefined;
     try {
@@ -66,8 +68,10 @@ async function apiRequest(
     }
     if (detail) {
       friendly = detail;
-    } else if (errorText) {
-      friendly = `${friendly}: ${errorText}`;
+    } else if (trimmedError && !looksLikeHtml) {
+      friendly = `${friendly}: ${trimmedError}`;
+    } else if (response.status >= 500) {
+      friendly = "Server error. Please try again in a moment.";
     }
     const error = new Error(friendly);
     throw error;
@@ -104,31 +108,20 @@ export async function refreshAccessToken(
 }
 
 export async function fetchProducts(): Promise<Product[]> {
-  const response = await fetch(`${apiBaseUrl}/api/products/`, {
+  const response = await apiRequest("/api/products/", {
+    method: "GET",
     next: { revalidate: 0 },
   });
-
-  if (!response.ok) {
-    const details = await response.text();
-    throw new Error(
-      `Failed to load products: ${response.status} ${response.statusText} – ${details}`,
-    );
-  }
 
   const data: DRFListResponse<Product> | Product[] = await response.json();
   return Array.isArray(data) ? data : data.results ?? [];
 }
 
 export async function fetchProductById(id: string): Promise<Product> {
-  const response = await fetch(`${apiBaseUrl}/api/products/${id}/`, {
+  const response = await apiRequest(`/api/products/${id}/`, {
+    method: "GET",
     next: { revalidate: 0 },
   });
-  if (!response.ok) {
-    const details = await response.text();
-    throw new Error(
-      `Failed to load product: ${response.status} ${response.statusText} – ${details}`,
-    );
-  }
   return response.json();
 }
 

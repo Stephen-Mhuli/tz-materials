@@ -86,7 +86,7 @@ export const messages: Record<Locale, Record<string, string>> = {
     capability_workforce_cta: "Request workforce brief",
     product_card_stock: "Units ready for mobilisation",
     product_card_brand: "Preferred brand",
-    product_card_cta: "View product sheet",
+    product_card_cta: "View product details",
     product_detail_overview_badge: "Specification overview",
     product_detail_choose_title: "Why builders choose this line",
     order_panel_heading: "Mobilise this material",

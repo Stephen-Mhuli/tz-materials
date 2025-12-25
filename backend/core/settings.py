@@ -65,11 +65,11 @@ ROOT_URLCONF = "core.urls"
 WSGI_APPLICATION = "core.wsgi.application"
 ASGI_APPLICATION = "core.asgi.application"
 
-CORS_ALLOWED_ORIGINS = [
-    "https://lgma-web.fly.dev",
-    "https://tz-materials-frontend.fly.dev",  # any other frontend
-    "http://localhost:3000",                  # local testing
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "https://lgma-web.fly.dev",
+#     "https://tz-materials-frontend.fly.dev",  # any other frontend
+#     "http://localhost:3000",                  # local testing
+# ]
 
 # DATABASES = {
 #     "default": {
@@ -82,14 +82,25 @@ CORS_ALLOWED_ORIGINS = [
 #     }
 # }
 
-import dj_database_url
-
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        engine='django.contrib.gis.db.backends.postgis'
-    )
-}
+database_url = os.environ.get("DATABASE_URL")
+if database_url:
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=database_url,
+            engine="django.contrib.gis.db.backends.postgis",
+        )
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.contrib.gis.db.backends.postgis",
+            "NAME": env("DB_NAME", default="materials"),
+            "USER": env("DB_USER", default="materials"),
+            "PASSWORD": env("DB_PASSWORD", default="materials"),
+            "HOST": env("DB_HOST", default="localhost"),
+            "PORT": env("DB_PORT", default="5432"),
+        }
+    }
 
 
 
