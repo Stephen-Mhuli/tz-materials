@@ -27,9 +27,9 @@ export function InitialLoader() {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-page">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-page">
       <div className="flex items-center rounded-full border border-muted bg-surface p-4 shadow-soft">
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-muted border-t-transparent" />
+        <span className="spinner h-4 w-4 rounded-full border-2 border-muted border-t-transparent" />
       </div>
     </div>
   );

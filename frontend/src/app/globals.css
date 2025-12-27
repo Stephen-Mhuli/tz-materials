@@ -109,3 +109,13 @@ a:hover {
 .brand-gradient {
   background-image: var(--accent);
 }
+
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: spinner-rotate 1s linear infinite;
+}
