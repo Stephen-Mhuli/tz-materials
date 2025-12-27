@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { addOrderItem, createOrder } from "@/lib/api";
 import { useAuthContext } from "@/context/AuthContext";
 import { useCartContext } from "@/context/CartContext";
@@ -18,6 +18,35 @@ export default function CartPage() {
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [draftQuantities, setDraftQuantities] = useState<Record<string, string>>(
+    {},
+  );
+
+  useEffect(() => {
+    setDraftQuantities((prev) => {
+      const next = { ...prev };
+      for (const item of items) {
+        if (next[item.product.id] === undefined) {
+          next[item.product.id] = String(item.quantity);
+        }
+      }
+      return next;
+    });
+  }, [items]);
+
+  const commitQuantity = (productId: string, value: string) => {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric) || numeric < 1) {
+      setDraftQuantities((prev) => ({ ...prev, [productId]: "1" }));
+      updateItem(productId, 1);
+      return;
+    }
+    updateItem(productId, Math.floor(numeric));
+    setDraftQuantities((prev) => ({
+      ...prev,
+      [productId]: String(Math.floor(numeric)),
+    }));
+  };
 
   const handleCheckout = async () => {
     if (!isAuthenticated || !tokens?.access) {
@@ -129,10 +158,22 @@ export default function CartPage() {
                   <input
                     type="number"
                     min="1"
-                    value={item.quantity}
+                    value={draftQuantities[item.product.id] ?? String(item.quantity)}
                     onChange={(event) =>
-                      updateItem(item.product.id, Number(event.target.value))
+                      setDraftQuantities((prev) => ({
+                        ...prev,
+                        [item.product.id]: event.target.value,
+                      }))
                     }
+                    onBlur={(event) =>
+                      commitQuantity(item.product.id, event.target.value)
+                    }
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        commitQuantity(item.product.id, event.currentTarget.value);
+                      }
+                    }}
                     className="w-24 rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-2 text-sm text-primary shadow-inner outline-none transition focus:border-[color:var(--brand-strong)]"
                   />
                   <button
