@@ -1,0 +1,37 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+export function InitialLoader() {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    const hide = () => setVisible(false);
+
+    if (document.readyState === "complete") {
+      timeoutId = setTimeout(hide, 150);
+    } else {
+      window.addEventListener("load", hide, { once: true });
+    }
+
+    timeoutId = setTimeout(hide, 4000);
+
+    return () => {
+      window.removeEventListener("load", hide);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-page">
+      <div className="flex items-center gap-3 rounded-full border border-muted bg-surface px-5 py-3 shadow-soft">
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-muted border-t-transparent" />
+        <span className="text-sm text-secondary">Loading the experience…</span>
+      </div>
+    </div>
+  );
+}

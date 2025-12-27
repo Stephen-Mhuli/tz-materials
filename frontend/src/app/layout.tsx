@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { HeaderNav } from "@/components/HeaderNav";
 import { AppFooter } from "@/components/AppFooter";
+import { InitialLoader } from "@/components/InitialLoader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} bg-page text-primary antialiased min-h-screen`}
       >
         <Providers>
+          <InitialLoader />
           <div className="flex min-h-screen flex-col bg-page">
             <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] bg-[radial-gradient(circle_at_top,_rgba(39,79,156,0.22),_transparent_65%)] dark:bg-[radial-gradient(circle_at_top,_rgba(140,181,255,0.18),_transparent_60%)]" />
             <header className="sticky top-0 z-20 border-b border-[color:var(--border-muted)] bg-[color:var(--surface)]/90 backdrop-blur">
