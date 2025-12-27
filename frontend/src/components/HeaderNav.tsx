@@ -26,7 +26,6 @@ const navLinks = [
     labelKey: "nav_add_product",
     roles: ["seller_admin", "seller_staff"],
   },
-  { href: "/webhooks", labelKey: "nav_webhooks", auth: true },
 ];
 
 export function HeaderNav() {
@@ -35,6 +34,7 @@ export function HeaderNav() {
   const { t } = useLocale();
   const { totalCount } = useCartContext();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [overflowOpen, setOverflowOpen] = useState(false);
 
   const visibleLinks = useMemo(() => {
     return navLinks.filter((link) => {
@@ -51,14 +51,26 @@ export function HeaderNav() {
     });
   }, [isAuthenticated, user]);
 
+  const { primaryLinks, overflowLinks } = useMemo(() => {
+    const maxDesktopLinks = 6;
+    if (visibleLinks.length <= maxDesktopLinks) {
+      return { primaryLinks: visibleLinks, overflowLinks: [] };
+    }
+    return {
+      primaryLinks: visibleLinks.slice(0, maxDesktopLinks),
+      overflowLinks: visibleLinks.slice(maxDesktopLinks),
+    };
+  }, [visibleLinks]);
+
   const handleLogout = () => {
     logout();
     setMenuOpen(false);
+    setOverflowOpen(false);
   };
 
-  const NavLinks = () => (
+  const NavLinks = ({ links }: { links: typeof navLinks }) => (
     <>
-      {visibleLinks.map((link) => {
+      {links.map((link) => {
         const isActive = pathname === link.href;
         const isCart = link.href === "/cart";
         return (
@@ -145,13 +157,31 @@ export function HeaderNav() {
         </div>
 
         <nav className="hidden items-center gap-3 md:flex">
-          <NavLinks />
+          <NavLinks links={primaryLinks} />
+          {overflowLinks.length > 0 && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setOverflowOpen((prev) => !prev)}
+                className="rounded-full px-3 py-2 text-sm font-semibold text-muted transition hover:bg-brand-soft hover:text-primary"
+                aria-haspopup="menu"
+                aria-expanded={overflowOpen}
+              >
+                {t("nav_more")}
+              </button>
+              {overflowOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-2 shadow-soft">
+                  <NavLinks links={overflowLinks} />
+                </div>
+              )}
+            </div>
+          )}
         </nav>
       </div>
       {menuOpen && (
         <nav className="flex flex-col gap-3 rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-4 shadow-soft md:hidden">
           <LocaleToggle condensed />
-          <NavLinks />
+          <NavLinks links={visibleLinks} />
         </nav>
       )}
     </div>
