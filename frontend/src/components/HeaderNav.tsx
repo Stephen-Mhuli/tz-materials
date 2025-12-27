@@ -36,6 +36,7 @@ export function HeaderNav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [overflowOpen, setOverflowOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const mobileToggleRef = useRef<HTMLButtonElement | null>(null);
   const overflowRef = useRef<HTMLDivElement | null>(null);
 
   const visibleLinks = useMemo(() => {
@@ -73,7 +74,12 @@ export function HeaderNav() {
   useEffect(() => {
     const handleClickAway = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (menuRef.current && !menuRef.current.contains(target)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(target) &&
+        mobileToggleRef.current &&
+        !mobileToggleRef.current.contains(target)
+      ) {
         setMenuOpen(false);
       }
       if (overflowRef.current && !overflowRef.current.contains(target)) {
@@ -168,6 +174,7 @@ export function HeaderNav() {
           <button
             type="button"
             onClick={() => setMenuOpen((prev) => !prev)}
+            ref={mobileToggleRef}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--border-muted)] text-lg text-primary md:hidden"
             aria-label={t("nav_menu_toggle")}
           >
