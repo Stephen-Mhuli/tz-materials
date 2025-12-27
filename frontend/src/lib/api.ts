@@ -124,20 +124,33 @@ export async function refreshAccessToken(
   return response.json();
 }
 
-export async function fetchProducts(): Promise<Product[]> {
+export async function fetchProducts(options?: { revalidate?: number }): Promise<Product[]> {
+  const isServer = typeof window === "undefined";
+  const next =
+    isServer && options?.revalidate !== undefined
+      ? { revalidate: options.revalidate }
+      : undefined;
   const response = await apiRequest("/api/products/", {
     method: "GET",
-    next: { revalidate: 0 },
+    ...(next ? { next } : {}),
   });
 
   const data: DRFListResponse<Product> | Product[] = await response.json();
   return Array.isArray(data) ? data : data.results ?? [];
 }
 
-export async function fetchProductById(id: string): Promise<Product> {
+export async function fetchProductById(
+  id: string,
+  options?: { revalidate?: number },
+): Promise<Product> {
+  const isServer = typeof window === "undefined";
+  const next =
+    isServer && options?.revalidate !== undefined
+      ? { revalidate: options.revalidate }
+      : undefined;
   const response = await apiRequest(`/api/products/${id}/`, {
     method: "GET",
-    next: { revalidate: 0 },
+    ...(next ? { next } : {}),
   });
   return response.json();
 }

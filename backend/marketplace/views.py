@@ -55,7 +55,7 @@ class SellerViewSet(viewsets.ModelViewSet):
         )
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all().order_by("-created_at")
+    queryset = Product.objects.select_related("seller").order_by("-created_at")
     serializer_class = ProductSerializer
     permission_classes = [IsSellerOrReadOnly]
     filterset_fields = ["category","seller"]
@@ -75,10 +75,15 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         u = self.request.user
+        base = (
+            Order.objects.select_related("buyer", "seller")
+            .prefetch_related("items", "items__product")
+            .order_by("-created_at")
+        )
         if u.role in ("seller_admin","seller_staff"):
             seller_ids = _get_user_seller_memberships(u).values_list("seller_id", flat=True)
-            return Order.objects.filter(seller_id__in=seller_ids)
-        return Order.objects.filter(buyer=u)
+            return base.filter(seller_id__in=seller_ids)
+        return base.filter(buyer=u)
 
     @action(detail=True, methods=["post"])
     @transaction.atomic
@@ -104,7 +109,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         serializer.save(buyer=self.request.user)
 
 class PaymentViewSet(viewsets.ModelViewSet):
-    queryset = Payment.objects.all().order_by("-created_at")
+    queryset = Payment.objects.select_related("order").order_by("-created_at")
     serializer_class = PaymentSerializer
     permission_classes = [permissions.IsAuthenticated]
 
