@@ -85,18 +85,17 @@ export default function HomePage() {
             <div className="rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] px-5 py-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted">{t("hero_metrics_projects")}</p>
               <p className="mt-2 text-3xl font-semibold text-primary">120+</p>
-              <p className="text-xs text-muted">Commercial &amp; infrastructure builds in 2024</p>
+              <p className="text-xs text-muted">{t("hero_metrics_projects_note")}</p>
             </div>
             <div className="rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] px-5 py-4">
               <p className="text-xs uppercase tracking-[0.2em] text-muted">{t("hero_metrics_delivery")}</p>
               <p className="mt-2 text-3xl font-semibold text-primary">98%</p>
-              <p className="text-xs text-muted">Measured across 12,000+ drop-offs</p>
+              <p className="text-xs text-muted">{t("hero_metrics_delivery_note")}</p>
             </div>
             <div className="rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] px-5 py-4 sm:col-span-2">
               <p className="text-xs uppercase tracking-[0.2em] text-muted">{t("hero_metrics_support")}</p>
               <p className="mt-2 text-sm text-secondary">
-                Dedicated coordinators for procurement, QA testing, logistics, and workforce deployment. Hotline:
-                <strong> +255 700 000 001</strong>
+                {t("hero_metrics_support_note", { phone: "+255 700 000 001" })}
               </p>
             </div>
           </div>

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AuthGuard } from "@/components/AuthGuard";
 import { useAuthContext } from "@/context/AuthContext";
+import { useLocale } from "@/context/LocaleContext";
 import {
   createSellerProfile,
   fetchSellerProfile,
@@ -24,6 +25,7 @@ export default function SellerPage() {
 
 function SellerManager() {
   const { tokens, user } = useAuthContext();
+  const { t } = useLocale();
   const [seller, setSeller] = useState<Seller | null>(null);
   const [invitations, setInvitations] = useState<SellerInvitation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,7 +72,7 @@ function SellerManager() {
         }
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "Failed to load seller profile.",
+          err instanceof Error ? err.message : t("seller_load_failed"),
         );
       } finally {
         setLoading(false);
@@ -100,12 +102,12 @@ function SellerManager() {
       await createSellerProfile(tokens.access, formState);
       const refreshed = await fetchSellerProfile(tokens.access);
       setSeller(refreshed[0] ?? null);
-      setSuccessMessage("Seller profile created successfully.");
+      setSuccessMessage(t("seller_created"));
       const invites = await fetchSellerInvitations(tokens.access);
       setInvitations(invites);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to create seller profile.",
+        err instanceof Error ? err.message : t("seller_create_failed"),
       );
     } finally {
       setSaving(false);
@@ -130,11 +132,11 @@ function SellerManager() {
       await updateSellerProfile(tokens.access, seller.id, payload);
       const refreshed = await fetchSellerProfile(tokens.access);
       setSeller(refreshed[0] ?? null);
-      setSuccessMessage("Seller profile updated.");
+      setSuccessMessage(t("seller_updated"));
       setEditing(false);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to update seller profile.",
+        err instanceof Error ? err.message : t("seller_update_failed"),
       );
     } finally {
       setSaving(false);
@@ -150,11 +152,11 @@ function SellerManager() {
     try {
       const created = await createSellerInvitation(tokens.access, inviteForm);
       setInvitations((prev) => [created, ...prev]);
-      setInviteMessage("Invitation sent successfully.");
+      setInviteMessage(t("seller_invite_sent"));
       setInviteForm({ email: "", phone: "" });
     } catch (err) {
       setInviteError(
-        err instanceof Error ? err.message : "Failed to send invitation.",
+        err instanceof Error ? err.message : t("seller_invite_failed"),
       );
     } finally {
       setInviteSaving(false);
@@ -174,7 +176,7 @@ function SellerManager() {
       );
     } catch (err) {
       setInviteError(
-        err instanceof Error ? err.message : "Failed to cancel invitation.",
+        err instanceof Error ? err.message : t("seller_invite_cancel_failed"),
       );
     }
   };
@@ -182,7 +184,7 @@ function SellerManager() {
   if (loading) {
     return (
       <div className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-6 text-sm text-muted shadow-soft">
-        Loading seller profile...
+        {t("seller_loading")}
       </div>
     );
   }
@@ -195,13 +197,13 @@ function SellerManager() {
     <div className="space-y-10">
       <header>
         <p className="text-xs uppercase tracking-[0.2em] text-muted">
-          Seller tools
+          {t("seller_badge")}
         </p>
         <h1 className="text-3xl font-semibold text-primary">
-          Manage your business profile
+          {t("seller_title")}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-secondary">
-          Keep your organisation details up to date, invite team members, and publish catalogue entries.
+          {t("seller_intro")}
         </p>
       </header>
 
@@ -216,16 +218,23 @@ function SellerManager() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-muted">
-                Active seller profile
+                {t("seller_active_profile")}
               </p>
               <h2 className="mt-2 text-2xl font-semibold text-primary">
                 {seller.business_name}
               </h2>
               <dl className="mt-3 space-y-2 text-sm text-secondary">
-                <Row label="Phone" value={seller.phone} />
-                {seller.email && <Row label="Email" value={seller.email} />}
-                {seller.address && <Row label="Address" value={seller.address} />}
-                <Row label="Verified" value={seller.verified ? "Yes" : "No"} />
+                <Row label={t("seller_label_phone")} value={seller.phone} />
+                {seller.email && (
+                  <Row label={t("seller_label_email")} value={seller.email} />
+                )}
+                {seller.address && (
+                  <Row label={t("seller_label_address")} value={seller.address} />
+                )}
+                <Row
+                  label={t("seller_label_verified")}
+                  value={seller.verified ? t("seller_verified_yes") : t("seller_verified_no")}
+                />
               </dl>
             </div>
             {isAdmin && (
@@ -238,7 +247,7 @@ function SellerManager() {
                 }}
                 className="rounded-full border border-[color:var(--border-muted)] bg-[color:var(--surface)] px-4 py-2 text-xs font-semibold text-primary transition hover:bg-brand-soft"
               >
-                Edit profile
+                {t("seller_edit_profile")}
               </button>
             )}
           </div>
@@ -249,53 +258,53 @@ function SellerManager() {
           className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-6 shadow-soft"
         >
           <h2 className="text-lg font-semibold text-primary">
-            {seller ? "Update seller profile" : "Create seller profile"}
+            {seller ? t("seller_form_update_title") : t("seller_form_create_title")}
           </h2>
           <p className="mt-2 text-sm text-secondary">
-            Provide the details your buyers need. LMGa verifies this information before catalogues go live.
+            {t("seller_form_intro")}
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <InputField
-              label="Business name"
+              label={t("seller_business_name")}
               required
               value={formState.business_name}
               onChange={(value) =>
                 setFormState((prev) => ({ ...prev, business_name: value }))
               }
-              placeholder="LMGa Aggregates Depot"
+              placeholder={t("seller_business_name_placeholder")}
             />
             <InputField
-              label="Business phone"
+              label={t("seller_business_phone")}
               required
               value={formState.phone}
               onChange={(value) =>
                 setFormState((prev) => ({ ...prev, phone: value }))
               }
-              placeholder="+255700000002"
+              placeholder={t("seller_business_phone_placeholder")}
             />
             <InputField
-              label="Email"
+              label={t("seller_business_email")}
               value={formState.email ?? ""}
               onChange={(value) =>
                 setFormState((prev) => ({ ...prev, email: value }))
               }
-              placeholder="operations@lmga.co.tz"
+              placeholder={t("seller_business_email_placeholder")}
             />
             <InputField
-              label="TIN (optional)"
+              label={t("seller_business_tin")}
               value={formState.tin ?? ""}
               onChange={(value) =>
                 setFormState((prev) => ({ ...prev, tin: value }))
               }
-              placeholder="123-456-789"
+              placeholder={t("seller_business_tin_placeholder")}
             />
             <InputField
-              label="Address"
+              label={t("seller_business_address")}
               value={formState.address ?? ""}
               onChange={(value) =>
                 setFormState((prev) => ({ ...prev, address: value }))
               }
-              placeholder="Plot 21, Nyerere Road, Dar es Salaam"
+              placeholder={t("seller_business_address_placeholder")}
               multiline
               className="sm:col-span-2"
             />
@@ -309,7 +318,7 @@ function SellerManager() {
                   }
                   className="h-4 w-4 rounded border-[color:var(--border-muted)] text-[color:var(--brand)] focus:ring-[color:var(--brand)]"
                 />
-                Mark seller as verified
+                {t("seller_verified_toggle")}
               </label>
             )}
           </div>
@@ -326,7 +335,11 @@ function SellerManager() {
               disabled={saving}
               className="inline-flex items-center rounded-full bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:scale-[1.01] hover:shadow-strong disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[color:var(--brand-strong)]"
             >
-              {saving ? "Saving..." : seller ? "Save changes" : "Create seller profile"}
+              {saving
+                ? t("seller_saving")
+                : seller
+                  ? t("seller_save_changes")
+                  : t("seller_create_profile")}
             </button>
             {seller && (
               <button
@@ -346,7 +359,7 @@ function SellerManager() {
                 }}
                 className="inline-flex items-center rounded-full border border-[color:var(--border-muted)] px-4 py-2 text-sm font-semibold text-primary transition hover:bg-brand-soft"
               >
-                Cancel
+                {t("seller_cancel")}
               </button>
             )}
           </div>
@@ -357,10 +370,10 @@ function SellerManager() {
         <section className="grid gap-6 lg:grid-cols-2">
           <div className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-6 shadow-soft">
             <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted">
-              Team members
+              {t("seller_team_title")}
             </h3>
             {seller.members.length === 0 ? (
-              <p className="mt-3 text-sm text-muted">No team members yet.</p>
+              <p className="mt-3 text-sm text-muted">{t("seller_team_empty")}</p>
             ) : (
               <ul className="mt-4 space-y-3 text-sm text-secondary">
                 {seller.members.map((member: SellerMember) => (
@@ -373,7 +386,9 @@ function SellerManager() {
                       <p className="text-xs text-muted">{member.user.phone}</p>
                     </div>
                     <span className="rounded-full bg-brand-soft px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
-                      {member.role}
+                      {member.role === "admin"
+                        ? t("seller_member_admin")
+                        : t("seller_member_staff")}
                     </span>
                   </li>
                 ))}
@@ -388,29 +403,29 @@ function SellerManager() {
                 className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-6 shadow-soft"
               >
                 <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted">
-                  Invite team member
+                  {t("seller_invite_title")}
                 </h3>
                 <p className="mt-2 text-sm text-secondary">
-                  Team members receive a unique link to create their seller-staff account. Because email delivery isn&apos;t wired up yet, copy the generated link below or send it manually.
+                  {t("seller_invite_intro")}
                 </p>
                 <div className="mt-4 grid gap-4">
                   <InputField
-                    label="Email"
+                    label={t("seller_invite_email")}
                     required
                     value={inviteForm.email}
                     onChange={(value) =>
                       setInviteForm((prev) => ({ ...prev, email: value }))
                     }
-                    placeholder="team.member@lmga.co.tz"
+                    placeholder={t("seller_invite_email_placeholder")}
                   />
                   <InputField
-                    label="Phone"
+                    label={t("seller_invite_phone")}
                     required
                     value={inviteForm.phone}
                     onChange={(value) =>
                       setInviteForm((prev) => ({ ...prev, phone: value }))
                     }
-                    placeholder="+255700000009"
+                    placeholder={t("seller_invite_phone_placeholder")}
                   />
                 </div>
                 {inviteMessage && (
@@ -428,16 +443,18 @@ function SellerManager() {
                   disabled={inviteSaving}
                   className="mt-4 inline-flex items-center rounded-full bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:scale-[1.01] hover:shadow-strong disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[color:var(--brand-strong)]"
                 >
-                  {inviteSaving ? "Sending invite..." : "Send invitation"}
+                  {inviteSaving ? t("seller_invite_sending") : t("seller_invite_send")}
                 </button>
               </form>
 
               <div className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-6 shadow-soft">
                 <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted">
-                  Pending invitations
+                  {t("seller_invites_title")}
                 </h3>
                 {invitations.length === 0 ? (
-                  <p className="mt-3 text-sm text-muted">No invitations have been sent.</p>
+                  <p className="mt-3 text-sm text-muted">
+                    {t("seller_invites_empty")}
+                  </p>
                 ) : (
                   <ul className="mt-3 space-y-3 text-sm text-secondary">
                     {invitations.map((invitation) => (
@@ -449,11 +466,15 @@ function SellerManager() {
                           <p className="font-semibold text-primary">{invitation.email}</p>
                           <p className="text-xs text-muted">{invitation.phone}</p>
                           <p className="text-xs text-muted">
-                            Status: {invitation.status}
+                            {t("seller_invite_status", {
+                              status: t(`status_${invitation.status}`),
+                            })}
                           </p>
                           {invitation.status === "pending" && (
                             <p className="mt-1 text-xs text-[color:var(--brand)] break-all">
-                              Share link: {`${invitationBase}/invite/${invitation.token}`}
+                              {t("seller_invite_share", {
+                                link: `${invitationBase}/invite/${invitation.token}`,
+                              })}
                             </p>
                           )}
                         </div>
@@ -463,7 +484,7 @@ function SellerManager() {
                             onClick={() => handleCancelInvite(invitation.id)}
                             className="rounded-full border border-red-300 px-3 py-1 text-xs font-semibold text-red-500 transition hover:bg-red-500/10"
                           >
-                            Cancel
+                            {t("seller_invite_cancel")}
                           </button>
                         )}
                       </li>

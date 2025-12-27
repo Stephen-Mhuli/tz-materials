@@ -4,16 +4,18 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/context/AuthContext";
+import { useLocale } from "@/context/LocaleContext";
 import type { UserRole } from "@/lib/types";
-
-const roles: Array<{ value: UserRole; label: string }> = [
-  { value: "buyer", label: "Buyer" },
-  { value: "seller_admin", label: "Seller" },
-];
 
 export default function RegisterPage() {
   const { register } = useAuthContext();
   const router = useRouter();
+  const { t } = useLocale();
+
+  const roles: Array<{ value: UserRole; label: string }> = [
+    { value: "buyer", label: t("register_role_buyer") },
+    { value: "seller_admin", label: t("register_role_seller") },
+  ];
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -35,7 +37,7 @@ export default function RegisterPage() {
       });
       router.replace("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed.");
+      setError(err instanceof Error ? err.message : t("register_failed"));
     } finally {
       setSubmitting(false);
     }
@@ -43,10 +45,11 @@ export default function RegisterPage() {
 
   return (
     <div className="mx-auto max-w-lg rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-8 shadow-soft">
-      <h1 className="text-2xl font-semibold text-primary">Create account</h1>
+      <h1 className="text-2xl font-semibold text-primary">
+        {t("register_title")}
+      </h1>
       <p className="mt-2 text-sm text-secondary">
-        Register as a buyer to start ordering, or as a seller admin to manage your
-        organisation. Seller staff accounts are invited directly by the admin once inside the system.
+        {t("register_subtitle")}
       </p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div className="space-y-2">
@@ -54,7 +57,7 @@ export default function RegisterPage() {
             className="text-sm font-medium text-primary"
             htmlFor="full_name"
           >
-            Full name
+            {t("register_full_name_label")}
           </label>
           <input
             id="full_name"
@@ -64,12 +67,12 @@ export default function RegisterPage() {
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
             className="w-full rounded-xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-2 text-sm text-primary shadow-inner outline-none transition focus:border-[color:var(--brand-strong)] focus:ring-2 focus:ring-[color:var(--brand-soft)]"
-            placeholder="Jane Doe"
+            placeholder={t("register_full_name_placeholder")}
           />
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-primary" htmlFor="phone">
-            Phone number
+            {t("register_phone_label")}
           </label>
           <input
             id="phone"
@@ -79,7 +82,7 @@ export default function RegisterPage() {
             value={phone}
             onChange={(event) => setPhone(event.target.value)}
             className="w-full rounded-xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-2 text-sm text-primary shadow-inner outline-none transition focus:border-[color:var(--brand-strong)] focus:ring-2 focus:ring-[color:var(--brand-soft)]"
-            placeholder="+255700000001"
+            placeholder={t("register_phone_placeholder")}
           />
         </div>
         <div className="space-y-2">
@@ -87,7 +90,7 @@ export default function RegisterPage() {
             className="text-sm font-medium text-primary"
             htmlFor="password"
           >
-            Password
+            {t("register_password_label")}
           </label>
           <input
             id="password"
@@ -97,12 +100,12 @@ export default function RegisterPage() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             className="w-full rounded-xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-2 text-sm text-primary shadow-inner outline-none transition focus:border-[color:var(--brand-strong)] focus:ring-2 focus:ring-[color:var(--brand-soft)]"
-            placeholder="••••••••"
+            placeholder={t("register_password_placeholder")}
           />
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-primary" htmlFor="role">
-            Account role
+            {t("register_role_label")}
           </label>
           <select
             id="role"
@@ -130,14 +133,14 @@ export default function RegisterPage() {
           disabled={submitting}
           className="w-full rounded-full bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:scale-[1.01] hover:shadow-strong disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[color:var(--brand-strong)]"
         >
-          {submitting ? "Creating account..." : "Create account"}
+          {submitting ? t("register_submitting") : t("register_submit")}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-secondary">
-        Already have an account?{" "}
+        {t("register_have_account")}{" "}
         <Link className="font-semibold text-[color:var(--brand)]" href="/login">
-          Log in
+          {t("register_login_link")}
         </Link>
       </p>
     </div>

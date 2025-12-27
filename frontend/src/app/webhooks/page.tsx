@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { triggerPaymentWebhook } from "@/lib/api";
+import { useLocale } from "@/context/LocaleContext";
 
 export default function WebhooksPage() {
+  const { t } = useLocale();
   const [payload, setPayload] = useState(
     JSON.stringify(
       {
@@ -33,7 +35,7 @@ export default function WebhooksPage() {
       setError(
         err instanceof Error
           ? err.message
-          : "Invalid payload or webhook error.",
+          : t("webhooks_error_generic"),
       );
     } finally {
       setSending(false);
@@ -44,14 +46,13 @@ export default function WebhooksPage() {
     <div className="space-y-6">
       <header>
         <p className="text-sm uppercase tracking-wide text-slate-500">
-          Webhooks
+          {t("webhooks_badge")}
         </p>
         <h1 className="text-3xl font-semibold text-slate-900">
-          Test payment webhook endpoint
+          {t("webhooks_title")}
         </h1>
         <p className="mt-2 text-sm text-slate-600">
-          Send arbitrary JSON payloads to <code>/api/webhooks/payments/</code>{" "}
-          to simulate callbacks from PSPs or other back-office systems.
+          {t("webhooks_intro")}
         </p>
       </header>
 
@@ -61,7 +62,7 @@ export default function WebhooksPage() {
       >
         <div className="space-y-3">
           <label className="text-sm font-semibold text-slate-700">
-            JSON payload
+            {t("webhooks_payload_label")}
           </label>
           <textarea
             value={payload}
@@ -74,17 +75,17 @@ export default function WebhooksPage() {
             disabled={sending}
             className="inline-flex w-full items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {sending ? "Sending..." : "Send webhook"}
+            {sending ? t("webhooks_sending") : t("webhooks_send")}
           </button>
         </div>
         <div className="space-y-3">
           <label className="text-sm font-semibold text-slate-700">
-            Response
+            {t("webhooks_response_label")}
           </label>
           <div className="h-full rounded-md border border-slate-200 bg-slate-50 p-3 font-mono text-xs text-slate-600">
             {error && (
               <div className="text-red-600">
-                Error:
+                {t("webhooks_error_prefix")}
                 <pre>{error}</pre>
               </div>
             )}
@@ -92,7 +93,9 @@ export default function WebhooksPage() {
               <pre className="whitespace-pre-wrap">{response}</pre>
             )}
             {!error && !response && (
-              <p className="text-slate-400">Responses will appear here.</p>
+              <p className="text-slate-400">
+                {t("webhooks_response_placeholder")}
+              </p>
             )}
           </div>
         </div>

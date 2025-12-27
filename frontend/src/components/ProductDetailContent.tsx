@@ -55,7 +55,7 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
               <p className="text-2xl font-semibold">
                 {price.toLocaleString()} TZS
                 <span className="ml-1 text-sm font-normal text-white/80">
-                  per {product.unit}
+                  {t("per_unit_label", { unit: product.unit })}
                 </span>
               </p>
             </div>
@@ -69,24 +69,32 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
                 {t("catalogue_stats_inventory")}
               </p>
               <p className="mt-2 text-lg font-semibold text-primary">
-                {product.stock.toLocaleString()} units
+                {product.stock.toLocaleString()} {t("units_label")}
               </p>
               <p className="text-xs text-muted">
-                Same-day dispatch in Dar &amp; Coastal zones
-              </p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-muted">Fulfilment coverage</p>
-              <p className="mt-2 text-lg font-semibold text-primary">Nationwide</p>
-              <p className="text-xs text-muted">
-                Coordinated cross-dock to Arusha, Dodoma &amp; Mwanza
+                {t("product_detail_inventory_note")}
               </p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-muted">Compliance</p>
-              <p className="mt-2 text-lg font-semibold text-primary">ASTM &amp; TBS certified</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-muted">
+                {t("product_detail_fulfilment_title")}
+              </p>
+              <p className="mt-2 text-lg font-semibold text-primary">
+                {t("product_detail_fulfilment_value")}
+              </p>
               <p className="text-xs text-muted">
-                Batch test certificates appended to every dispatch note
+                {t("product_detail_fulfilment_note")}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-muted">
+                {t("product_detail_compliance_title")}
+              </p>
+              <p className="mt-2 text-lg font-semibold text-primary">
+                {t("product_detail_compliance_value")}
+              </p>
+              <p className="text-xs text-muted">
+                {t("product_detail_compliance_note")}
               </p>
             </div>
           </div>
@@ -108,19 +116,19 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
               <li className="flex items-start gap-3">
                 <span className="mt-1 text-base text-[color:var(--brand)]">•</span>
                 <span>
-                  Guaranteed availability with buffer stock held across LMGa depots for phased deliveries.
+                  {t("product_detail_choose_item1")}
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="mt-1 text-base text-[color:var(--brand)]">•</span>
                 <span>
-                  Technical support for substitution requests, mix design adjustments, and coordinated testing.
+                  {t("product_detail_choose_item2")}
                 </span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="mt-1 text-base text-[color:var(--brand)]">•</span>
                 <span>
-                  Optional labour pairing to mobilise certified crews familiar with the material handling requirements.
+                  {t("product_detail_choose_item3")}
                 </span>
               </li>
             </ul>

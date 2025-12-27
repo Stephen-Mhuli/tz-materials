@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AuthGuard } from "@/components/AuthGuard";
 import { useAuthContext } from "@/context/AuthContext";
+import { useLocale } from "@/context/LocaleContext";
 import {
   createPayment,
   fetchPayments,
@@ -29,6 +30,7 @@ export default function PaymentsPage() {
 
 function PaymentsPanel() {
   const { tokens } = useAuthContext();
+  const { t } = useLocale();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +58,7 @@ function PaymentsPanel() {
         setError(
           err instanceof Error
             ? err.message
-            : "Failed to fetch payments from the API.",
+            : t("payments_fetch_failed"),
         );
       } finally {
         setLoading(false);
@@ -82,7 +84,7 @@ function PaymentsPanel() {
       };
       const created = await createPayment(tokens.access, payload);
       setPayments((prev) => [created, ...prev]);
-      setMessage("Payment request created.");
+      setMessage(t("payments_create_success"));
       setForm({
         order: "",
         amount: "",
@@ -92,7 +94,7 @@ function PaymentsPanel() {
       });
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to create payment.",
+        err instanceof Error ? err.message : t("payments_create_failed"),
       );
     } finally {
       setSaving(false);
@@ -112,14 +114,14 @@ function PaymentsPanel() {
       });
       setWebhookMessage(
         response.ok
-          ? `Webhook accepted for payment ${payment.id}.`
-          : `Webhook returned error: ${response.error}`,
+          ? t("payments_webhook_success", { id: payment.id })
+          : t("payments_webhook_error", { error: response.error ?? "" }),
       );
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : "Failed to trigger the payment webhook.",
+          : t("payments_webhook_failed"),
       );
     } finally {
       setBusyPayment(null);
@@ -130,26 +132,25 @@ function PaymentsPanel() {
     <div className="space-y-6">
       <header>
         <p className="text-sm uppercase tracking-wide text-slate-500">
-          Payments
+          {t("payments_badge")}
         </p>
         <h1 className="text-3xl font-semibold text-slate-900">
-          Payment requests & reconciliation
+          {t("payments_title")}
         </h1>
         <p className="mt-2 text-sm text-slate-600">
-          Create payment intents against an order, then simulate PSP callbacks
-          using the webhook helper below.
+          {t("payments_intro")}
         </p>
       </header>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_2fr]">
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-base font-semibold text-slate-900">
-            Create payment request
+            {t("payments_create_title")}
           </h2>
           <form onSubmit={handleSubmit} className="mt-4 space-y-3 text-sm">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase text-slate-600">
-                Order UUID
+                {t("payments_order_uuid")}
               </label>
               <input
                 required
@@ -163,7 +164,7 @@ function PaymentsPanel() {
             </div>
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase text-slate-600">
-                Amount (TZS)
+                {t("payments_amount_label")}
               </label>
               <input
                 required
@@ -177,7 +178,7 @@ function PaymentsPanel() {
             </div>
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase text-slate-600">
-                Payment method
+                {t("payments_method_label")}
               </label>
               <select
                 value={form.method}
@@ -186,14 +187,16 @@ function PaymentsPanel() {
                 }
                 className="w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200"
               >
-                <option value="mobile_money">Mobile money</option>
-                <option value="cash">Cash</option>
-                <option value="bank_transfer">Bank transfer</option>
+                <option value="mobile_money">
+                  {t("payment_method_mobile_money")}
+                </option>
+                <option value="cash">{t("payment_method_cash")}</option>
+                <option value="bank_transfer">{t("payment_method_bank")}</option>
               </select>
             </div>
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase text-slate-600">
-                Provider
+                {t("payments_provider_label")}
               </label>
               <select
                 value={form.provider}
@@ -202,14 +205,14 @@ function PaymentsPanel() {
                 }
                 className="w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200"
               >
-                <option value="mpesa">M-Pesa</option>
-                <option value="tigopesa">Tigo Pesa</option>
-                <option value="airtelmoney">Airtel Money</option>
+                <option value="mpesa">{t("payment_provider_mpesa")}</option>
+                <option value="tigopesa">{t("payment_provider_tigopesa")}</option>
+                <option value="airtelmoney">{t("payment_provider_airtel")}</option>
               </select>
             </div>
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase text-slate-600">
-                Transaction reference (optional)
+                {t("payments_tx_label")}
               </label>
               <input
                 value={form.tx_ref}
@@ -217,7 +220,7 @@ function PaymentsPanel() {
                   setForm((prev) => ({ ...prev, tx_ref: event.target.value }))
                 }
                 className="w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200"
-                placeholder="Optional custom reference"
+                placeholder={t("payments_tx_placeholder")}
               />
             </div>
 
@@ -237,22 +240,22 @@ function PaymentsPanel() {
               disabled={saving}
               className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {saving ? "Creating..." : "Create payment"}
+              {saving ? t("payments_create_creating") : t("payments_create_button")}
             </button>
           </form>
         </section>
 
         <section className="space-y-4">
           <h2 className="text-base font-semibold text-slate-900">
-            Payment history
+            {t("payments_history_title")}
           </h2>
           {loading ? (
             <div className="rounded-lg border border-slate-200 bg-white p-6 text-sm text-slate-500">
-              Loading payments...
+              {t("payments_loading")}
             </div>
           ) : payments.length === 0 ? (
             <div className="rounded-lg border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-500">
-              No payment records yet. Generate one using the form on the left.
+              {t("payments_empty")}
             </div>
           ) : (
             payments.map((payment) => (
@@ -262,7 +265,9 @@ function PaymentsPanel() {
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <h3 className="text-sm font-semibold text-slate-900">
-                    Payment {payment.id.slice(0, 8)}...
+                    {t("payments_record_label", {
+                      id: payment.id.slice(0, 8),
+                    })}
                   </h3>
                   <span className="rounded-md bg-slate-200 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700">
                     {payment.status}
@@ -270,22 +275,28 @@ function PaymentsPanel() {
                 </div>
                 <dl className="mt-3 grid gap-3 text-xs text-slate-600 sm:grid-cols-4">
                   <div>
-                    <dt className="font-medium text-slate-500">Order ID</dt>
+                    <dt className="font-medium text-slate-500">
+                      {t("payments_order_id_label")}
+                    </dt>
                     <dd className="break-all">{payment.order}</dd>
                   </div>
                   <div>
                     <dt className="font-medium text-slate-500">
-                      Amount (TZS)
+                      {t("payments_amount_short")}
                     </dt>
                     <dd>{payment.amount}</dd>
                   </div>
                   <div>
-                    <dt className="font-medium text-slate-500">Provider</dt>
-                    <dd>{payment.provider ?? "n/a"}</dd>
+                    <dt className="font-medium text-slate-500">
+                      {t("payments_provider_short")}
+                    </dt>
+                    <dd>{payment.provider ?? t("payments_na")}</dd>
                   </div>
                   <div>
-                    <dt className="font-medium text-slate-500">Tx Ref</dt>
-                    <dd>{payment.tx_ref ?? "n/a"}</dd>
+                    <dt className="font-medium text-slate-500">
+                      {t("payments_tx_ref")}
+                    </dt>
+                    <dd>{payment.tx_ref ?? t("payments_na")}</dd>
                   </div>
                 </dl>
                 <button
@@ -295,8 +306,8 @@ function PaymentsPanel() {
                   className="mt-3 inline-flex items-center rounded-md border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {busyPayment === payment.id
-                    ? "Triggering webhook..."
-                    : "Trigger success webhook"}
+                    ? t("payments_webhook_triggering")
+                    : t("payments_webhook_trigger")}
                 </button>
               </article>
             ))

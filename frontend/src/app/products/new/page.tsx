@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { AuthGuard } from "@/components/AuthGuard";
 import { useAuthContext } from "@/context/AuthContext";
+import { useLocale } from "@/context/LocaleContext";
 import {
   createProduct,
   deleteProduct,
@@ -32,8 +33,47 @@ const fadeUp = {
   },
 };
 
+const CATEGORY_OPTIONS = [
+  { value: "cement", labelKey: "category_cement" },
+  { value: "steel", labelKey: "category_steel" },
+  { value: "rebar", labelKey: "category_rebar" },
+  { value: "structural-steel", labelKey: "category_structural_steel" },
+  { value: "aggregates", labelKey: "category_aggregates" },
+  { value: "sand", labelKey: "category_sand" },
+  { value: "gravel", labelKey: "category_gravel" },
+  { value: "crushed-stone", labelKey: "category_crushed_stone" },
+  { value: "blocks", labelKey: "category_blocks" },
+  { value: "bricks", labelKey: "category_bricks" },
+  { value: "equipment", labelKey: "category_equipment" },
+  { value: "scaffolding", labelKey: "category_scaffolding" },
+  { value: "finishes", labelKey: "category_finishes" },
+  { value: "lumber", labelKey: "category_lumber" },
+  { value: "tiles", labelKey: "category_tiles" },
+  { value: "roofing", labelKey: "category_roofing" },
+  { value: "flooring", labelKey: "category_flooring" },
+  { value: "paint", labelKey: "category_paint" },
+  { value: "doors", labelKey: "category_doors" },
+  { value: "windows", labelKey: "category_windows" },
+  { value: "glass", labelKey: "category_glass" },
+  { value: "plumbing", labelKey: "category_plumbing" },
+  { value: "electrical", labelKey: "category_electrical" },
+  { value: "lighting", labelKey: "category_lighting" },
+  { value: "sanitary", labelKey: "category_sanitary" },
+  { value: "pipes", labelKey: "category_pipes" },
+  { value: "insulation", labelKey: "category_insulation" },
+  { value: "waterproofing", labelKey: "category_waterproofing" },
+  { value: "adhesives", labelKey: "category_adhesives" },
+  { value: "sealants", labelKey: "category_sealants" },
+  { value: "hardware", labelKey: "category_hardware" },
+  { value: "fasteners", labelKey: "category_fasteners" },
+  { value: "tools", labelKey: "category_tools" },
+  { value: "landscaping", labelKey: "category_landscaping" },
+  { value: "road-works", labelKey: "category_road_works" },
+];
+
 function ProductComposer() {
   const { tokens } = useAuthContext();
+  const { t } = useLocale();
   const [seller, setSeller] = useState<Seller | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +104,7 @@ function ProductComposer() {
         ]);
         if (sellerRecords.length === 0) {
           setError(
-            "No seller profile found. Create one first from the Seller Tools page.",
+            t("product_new_missing_seller"),
           );
           return;
         }
@@ -76,7 +116,7 @@ function ProductComposer() {
         setError(
           err instanceof Error
             ? err.message
-            : "Unable to load seller/products.",
+            : t("product_new_load_failed"),
         );
       } finally {
         setLoading(false);
@@ -121,12 +161,12 @@ function ProductComposer() {
             product.id === editingProductId ? { ...updated } : product,
           ),
         );
-        setSuccessMessage(`Product "${updated.name}" updated.`);
+        setSuccessMessage(t("product_new_updated", { name: updated.name }));
         setEditingProductId(null);
       } else {
         const created = await createProduct(tokens.access, payload);
         setProducts((prev) => [created, ...prev]);
-        setSuccessMessage(`Product "${created.name}" published.`);
+        setSuccessMessage(t("product_new_published", { name: created.name }));
       }
       setForm({
         name: "",
@@ -142,13 +182,25 @@ function ProductComposer() {
         err instanceof Error
           ? err.message
           : editingProductId
-            ? "Failed to update product."
-            : "Failed to create product.",
+            ? t("product_new_update_failed")
+            : t("product_new_create_failed"),
       );
     } finally {
       setSaving(false);
     }
   };
+
+  const categoryOptions = useMemo(() => {
+    if (!form.category) return CATEGORY_OPTIONS;
+    const exists = CATEGORY_OPTIONS.some(
+      (option) => option.value === form.category,
+    );
+    if (exists) return CATEGORY_OPTIONS;
+    return [
+      { value: form.category, labelKey: form.category },
+      ...CATEGORY_OPTIONS,
+    ];
+  }, [form.category]);
 
   const beginEditProduct = (product: Product) => {
     setEditingProductId(product.id);
@@ -194,10 +246,10 @@ function ProductComposer() {
       if (editingProductId === productId) {
         cancelEdit();
       }
-      setSuccessMessage("Product removed.");
+      setSuccessMessage(t("product_new_removed"));
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to delete product.",
+        err instanceof Error ? err.message : t("product_new_delete_failed"),
       );
     } finally {
       setDeletingProductId(null);
@@ -207,7 +259,7 @@ function ProductComposer() {
   if (loading) {
     return (
       <div className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-6 text-sm text-muted shadow-soft">
-        Loading seller data...
+        {t("product_new_loading")}
       </div>
     );
   }
@@ -217,7 +269,7 @@ function ProductComposer() {
       <div className="rounded-3xl border border-red-300 bg-red-500/10 p-6 text-sm text-red-600">
         {error}{" "}
         <Link href="/seller" className="font-semibold text-[color:var(--brand)]">
-          Manage seller profile
+          {t("product_new_error_manage")}
         </Link>
       </div>
     );
@@ -226,11 +278,16 @@ function ProductComposer() {
   return (
     <div className="space-y-10">
       <motion.header initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-        <p className="text-xs uppercase tracking-[0.2em] text-muted">Catalogue</p>
-        <h1 className="text-3xl font-semibold text-primary">Publish a new product</h1>
+        <p className="text-xs uppercase tracking-[0.2em] text-muted">
+          {t("product_new_badge")}
+        </p>
+        <h1 className="text-3xl font-semibold text-primary">
+          {t("product_new_title")}
+        </h1>
         {seller && (
           <p className="mt-1 text-sm text-muted">
-            Products will belong to <span className="font-semibold text-primary">{seller.business_name}</span>.
+            {t("product_new_belongs_prefix")}{" "}
+            <span className="font-semibold text-primary">{seller.business_name}</span>.
           </p>
         )}
       </motion.header>
@@ -243,16 +300,20 @@ function ProductComposer() {
           viewport={{ once: true, amount: 0.2 }}
           variants={fadeUp}
         >
-          <MetricCard title="Products" value={inventoryMetrics.totalCount} subtitle="Active catalogue entries" />
           <MetricCard
-            title="Units on hand"
-            value={inventoryMetrics.totalStock.toLocaleString()}
-            subtitle="Aggregated available stock"
+            title={t("product_new_metric_products")}
+            value={inventoryMetrics.totalCount}
+            subtitle={t("product_new_metric_products_note")}
           />
           <MetricCard
-            title="Inventory value (TZS)"
+            title={t("product_new_metric_units")}
+            value={inventoryMetrics.totalStock.toLocaleString()}
+            subtitle={t("product_new_metric_units_note")}
+          />
+          <MetricCard
+            title={t("product_new_metric_value")}
             value={inventoryMetrics.totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-            subtitle="Stock × price snapshot"
+            subtitle={t("product_new_metric_value_note")}
           />
         </motion.section>
       )}
@@ -268,46 +329,61 @@ function ProductComposer() {
         <div className="grid gap-4 sm:grid-cols-2">
           {editingProductId && (
             <div className="sm:col-span-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">
-              Editing product – updates will be applied to the selected item.
+              {t("product_new_editing_notice")}
               <button
                 type="button"
                 onClick={cancelEdit}
                 className="ml-3 inline-flex items-center rounded border border-amber-300 px-2 py-0.5 text-[11px] font-semibold text-amber-700 transition hover:bg-amber-100"
               >
-                Cancel edit
+                {t("product_new_cancel_edit")}
               </button>
             </div>
           )}
           <InputField
-            label="Product name"
+            label={t("product_new_name_label")}
             required
             value={form.name}
             onChange={(value) => setForm((prev) => ({ ...prev, name: value }))}
-            placeholder="Cement Bag 50kg"
+            placeholder={t("product_new_name_placeholder")}
             className="sm:col-span-2"
           />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-primary">
+              {t("product_new_category_label")} *
+            </label>
+            <select
+              value={form.category}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, category: event.target.value }))
+              }
+              required
+              className="mt-2 w-full rounded-xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-2 text-sm text-primary shadow-inner outline-none transition focus:border-[color:var(--brand-strong)] focus:ring-2 focus:ring-[color:var(--brand-soft)]"
+            >
+              <option value="" disabled>
+                {t("category_select_placeholder")}
+              </option>
+              {categoryOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {"labelKey" in option ? t(option.labelKey) : option.value}
+                </option>
+              ))}
+            </select>
+          </div>
           <InputField
-            label="Category"
-            required
-            value={form.category}
-            onChange={(value) => setForm((prev) => ({ ...prev, category: value }))}
-            placeholder="cement"
-          />
-          <InputField
-            label="Brand"
+            label={t("product_new_brand_label")}
             value={form.brand ?? ""}
             onChange={(value) => setForm((prev) => ({ ...prev, brand: value }))}
-            placeholder="Twiga"
+            placeholder={t("product_new_brand_placeholder")}
           />
           <InputField
-            label="Unit"
+            label={t("product_new_unit_label")}
             required
             value={form.unit}
             onChange={(value) => setForm((prev) => ({ ...prev, unit: value }))}
-            placeholder="bag"
+            placeholder={t("product_new_unit_placeholder")}
           />
           <InputField
-            label="Price (TZS)"
+            label={t("product_new_price_label")}
             required
             type="number"
             min="0"
@@ -315,7 +391,7 @@ function ProductComposer() {
             onChange={(value) => setForm((prev) => ({ ...prev, price: Number(value) }))}
           />
           <InputField
-            label="Stock quantity"
+            label={t("product_new_stock_label")}
             required
             type="number"
             min="0"
@@ -323,10 +399,10 @@ function ProductComposer() {
             onChange={(value) => setForm((prev) => ({ ...prev, stock: Number(value) }))}
           />
           <InputField
-            label="Short description"
+            label={t("product_new_description_label")}
             value={form.description ?? ""}
             onChange={(value) => setForm((prev) => ({ ...prev, description: value }))}
-            placeholder="High-quality Portland cement suitable for structural works."
+            placeholder={t("product_new_description_placeholder")}
             multiline
             className="sm:col-span-2"
           />
@@ -351,11 +427,11 @@ function ProductComposer() {
           >
             {saving
               ? editingProductId
-                ? "Updating product..."
-                : "Publishing..."
+                ? t("product_new_saving_update")
+                : t("product_new_saving_create")
               : editingProductId
-                ? "Save changes"
-                : "Publish product"}
+                ? t("product_new_save_changes")
+                : t("product_new_publish")}
           </button>
           {editingProductId && (
             <button
@@ -363,7 +439,7 @@ function ProductComposer() {
               onClick={cancelEdit}
               className="inline-flex items-center rounded-full border border-[color:var(--border-muted)] px-4 py-2 text-sm font-semibold text-primary transition hover:bg-brand-soft"
             >
-              Cancel edit
+              {t("product_new_cancel_edit")}
             </button>
           )}
         </div>
@@ -377,17 +453,22 @@ function ProductComposer() {
         variants={fadeUp}
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-primary">Your published products</h2>
+          <h2 className="text-lg font-semibold text-primary">
+            {t("product_new_header_title")}
+          </h2>
           {products.length > 0 && (
             <p className="text-sm text-muted">
-              {products.length} listing{products.length === 1 ? "" : "s"} visible in the catalogue
+              {t("product_new_header_count", {
+                count: products.length,
+                suffix: products.length === 1 ? "" : "s",
+              })}
             </p>
           )}
         </div>
 
         {products.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-[color:var(--border-muted)] bg-[color:var(--surface)] p-10 text-center text-sm text-muted">
-            No products published yet. Once you publish inventory it will appear here automatically.
+            {t("product_new_empty")}
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
@@ -407,26 +488,28 @@ function ProductComposer() {
                     <p className="text-xs uppercase tracking-[0.2em] text-muted">{product.category}</p>
                   </div>
                   <div className="rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-3 text-xs">
-                    <p className="text-muted">Unit price</p>
+                    <p className="text-muted">{t("product_new_unit_price")}</p>
                     <p className="text-sm font-semibold text-primary">{Number(product.price).toLocaleString()} TZS</p>
                   </div>
                   <div className="rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-3 text-xs">
-                    <p className="text-muted">Stock</p>
-                    <p className="text-sm font-semibold text-primary">{product.stock.toLocaleString()} units</p>
+                    <p className="text-muted">{t("product_new_stock")}</p>
+                    <p className="text-sm font-semibold text-primary">
+                      {product.stock.toLocaleString()} {t("units_label")}
+                    </p>
                   </div>
                   <div className="mt-auto flex flex-wrap gap-2">
                     <Link
                       href={`/products/${product.id}`}
                       className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[color:var(--border-muted)] px-3 py-2 text-xs font-semibold text-primary transition hover:bg-brand-soft"
                     >
-                      View product →
+                      {t("product_new_view")}
                     </Link>
                     <button
                       type="button"
                       onClick={() => beginEditProduct(product)}
                       className="inline-flex flex-1 items-center justify-center rounded-full border border-[color:var(--border-muted)] px-3 py-2 text-xs font-semibold text-primary transition hover:bg-brand-soft"
                     >
-                      Edit
+                      {t("product_new_edit")}
                     </button>
                     <button
                       type="button"
@@ -434,7 +517,9 @@ function ProductComposer() {
                       className="inline-flex flex-1 items-center justify-center rounded-full border border-red-300 px-3 py-2 text-xs font-semibold text-red-500 transition hover:bg-red-500/10"
                       disabled={deletingProductId === product.id}
                     >
-                      {deletingProductId === product.id ? "Deleting..." : "Delete"}
+                      {deletingProductId === product.id
+                        ? t("product_new_deleting")
+                        : t("product_new_delete")}
                     </button>
                   </div>
                 </div>

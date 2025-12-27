@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AuthGuard } from "@/components/AuthGuard";
 import { useAuthContext } from "@/context/AuthContext";
+import { useLocale } from "@/context/LocaleContext";
 import { addOrderItem, fetchOrders, type AddOrderItemPayload } from "@/lib/api";
 import type { Order } from "@/lib/types";
 
@@ -21,6 +22,7 @@ export default function OrdersPage() {
 
 function OrdersPanel() {
   const { tokens } = useAuthContext();
+  const { t } = useLocale();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +45,7 @@ function OrdersPanel() {
         setError(
           err instanceof Error
             ? err.message
-            : "Failed to fetch orders from the API.",
+            : t("orders_fetch_failed"),
         );
       } finally {
         setLoading(false);
@@ -74,11 +76,11 @@ function OrdersPanel() {
       setOrders((prev) =>
         prev.map((order) => (order.id === updated.id ? updated : order)),
       );
-      setMessage("Item added to order.");
+      setMessage(t("orders_add_success"));
       setItemForm({ product_id: "", quantity: 1 });
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to add item to order.",
+        err instanceof Error ? err.message : t("orders_add_failed"),
       );
     } finally {
       setAddingItem(false);
@@ -89,18 +91,17 @@ function OrdersPanel() {
     <div className="space-y-6">
       <header>
         <p className="text-sm uppercase tracking-wide text-slate-500">
-          Orders
+          {t("orders_badge")}
         </p>
-        <h1 className="text-3xl font-semibold text-slate-900">My orders</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Orders are scoped to your account. Buyers see their purchase history;
-          sellers see orders tied to their catalog.
-        </p>
+        <h1 className="text-3xl font-semibold text-slate-900">
+          {t("orders_title")}
+        </h1>
+        <p className="mt-2 text-sm text-slate-600">{t("orders_intro")}</p>
       </header>
 
       {loading ? (
         <div className="rounded-lg border border-slate-200 bg-white p-6 text-sm text-slate-500">
-          Loading orders...
+          {t("orders_loading")}
         </div>
       ) : (
         <>
@@ -113,7 +114,7 @@ function OrdersPanel() {
             <section className="space-y-4">
               {orders.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-500">
-                  No orders yet. Buyers can create them from any product page.
+                  {t("orders_empty")}
                 </div>
               ) : (
                 orders.map((order) => (
@@ -127,7 +128,9 @@ function OrdersPanel() {
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-slate-900">
-                        Order {order.id.slice(0, 8)}...
+                        {t("orders_order_label", {
+                          id: order.id.slice(0, 8),
+                        })}
                       </h2>
                       <button
                         type="button"
@@ -135,47 +138,50 @@ function OrdersPanel() {
                         className="rounded-md border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
                       >
                         {order.id === selectedOrder
-                          ? "Selected"
-                          : "Manage order"}
+                          ? t("orders_selected")
+                          : t("orders_manage")}
                       </button>
                     </div>
                     <dl className="mt-3 grid gap-3 text-xs text-slate-600 sm:grid-cols-4">
                       <div>
-                        <dt className="font-medium text-slate-500">Status</dt>
+                        <dt className="font-medium text-slate-500">
+                          {t("orders_status_label")}
+                        </dt>
                         <dd className="capitalize">{order.status}</dd>
                       </div>
                       <div>
                         <dt className="font-medium text-slate-500">
-                          Total (TZS)
+                          {t("orders_total_label")}
                         </dt>
                         <dd>{order.total ?? "—"}</dd>
                       </div>
                       <div>
                         <dt className="font-medium text-slate-500">
-                          Seller ID
+                          {t("orders_seller_label")}
                         </dt>
                         <dd className="break-all">{order.seller}</dd>
                       </div>
                       <div>
                         <dt className="font-medium text-slate-500">
-                          Created
+                          {t("orders_created_label")}
                         </dt>
                         <dd>{new Date(order.created_at).toLocaleString()}</dd>
                       </div>
                     </dl>
                     <div className="mt-3">
                       <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        Items
+                        {t("orders_items_label")}
                       </h3>
                       {order.items.length === 0 ? (
                         <p className="mt-1 text-xs text-slate-500">
-                          No items yet.
+                          {t("orders_items_empty")}
                         </p>
                       ) : (
                         <ul className="mt-2 space-y-1 text-xs text-slate-600">
                           {order.items.map((item) => (
                             <li key={item.id}>
-                              {item.quantity} × {item.product ?? "deleted"} —
+                              {item.quantity} ×{" "}
+                              {item.product ?? t("orders_item_deleted")} —
                               {item.line_total} TZS
                             </li>
                           ))}
@@ -189,28 +195,27 @@ function OrdersPanel() {
 
             <aside className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <h2 className="text-base font-semibold text-slate-900">
-                Add item to order
+                {t("orders_add_title")}
               </h2>
               <p className="mt-2 text-xs text-slate-600">
-                Paste a product UUID from the catalog and choose quantity. The
-                backend recalculates totals automatically.
+                {t("orders_add_intro")}
               </p>
               <form onSubmit={handleAddItem} className="mt-4 space-y-3">
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-slate-600">
-                    Order ID
+                    {t("orders_add_order_id")}
                   </label>
                   <input
                     type="text"
                     value={selectedOrder ?? ""}
                     readOnly
                     className="w-full rounded-md border border-slate-200 bg-slate-100 px-3 py-2 text-xs text-slate-600"
-                    placeholder="Select an order"
+                    placeholder={t("orders_add_select_order")}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-slate-600">
-                    Product UUID
+                    {t("orders_add_product_id")}
                   </label>
                   <input
                     required
@@ -227,7 +232,7 @@ function OrdersPanel() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-slate-600">
-                    Quantity
+                    {t("orders_add_quantity")}
                   </label>
                   <input
                     type="number"
@@ -260,7 +265,7 @@ function OrdersPanel() {
                   disabled={!selectedOrder || addingItem}
                   className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  {addingItem ? "Adding..." : "Add item"}
+                  {addingItem ? t("orders_add_adding") : t("orders_add_button")}
                 </button>
               </form>
             </aside>

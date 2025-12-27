@@ -74,12 +74,12 @@ export function ProductOrderPanel({ product }: ProductOrderPanelProps) {
         itemPayload,
       );
       setOrder(updatedOrder);
-      setStatus("Order created and item added.");
+      setStatus(t("order_panel_created"));
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : "Failed to create order. Please try again.",
+          : t("order_panel_failed"),
       );
     } finally {
       setSubmitting(false);
@@ -96,9 +96,7 @@ export function ProductOrderPanel({ product }: ProductOrderPanelProps) {
   const handleCreatePayment = async () => {
     if (!ensureAuth() || !tokens?.access || !order) return;
     if (!order.total) {
-      setError(
-        "Order total is missing. Ensure the order has at least one item to determine the payable amount.",
-      );
+      setError(t("order_panel_total_missing"));
       return;
     }
     setProcessingPayment(true);
@@ -114,12 +112,12 @@ export function ProductOrderPanel({ product }: ProductOrderPanelProps) {
       };
       const created = await createPayment(tokens.access, payload);
       setPayment(created);
-      setStatus("Payment record created. Trigger webhook to confirm.");
+      setStatus(t("order_panel_payment_created"));
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : "Failed to create payment record.",
+          : t("order_panel_payment_failed"),
       );
     } finally {
       setProcessingPayment(false);
@@ -128,7 +126,7 @@ export function ProductOrderPanel({ product }: ProductOrderPanelProps) {
 
   const handleWebhook = async () => {
     if (!payment?.tx_ref) {
-      setError("No payment transaction reference available.");
+      setError(t("order_panel_webhook_missing"));
       return;
     }
     try {
@@ -140,8 +138,8 @@ export function ProductOrderPanel({ product }: ProductOrderPanelProps) {
       });
       setWebhookResponse(
         response.ok
-          ? "Webhook accepted. Order will reflect confirmed status."
-          : `Webhook responded with error: ${response.error}`,
+          ? t("order_panel_webhook_success")
+          : t("order_panel_webhook_error", { error: response.error ?? "" }),
       );
       if (response.ok) {
         setOrder((prev) =>
@@ -155,7 +153,7 @@ export function ProductOrderPanel({ product }: ProductOrderPanelProps) {
       setError(
         err instanceof Error
           ? err.message
-          : "Failed to call payment webhook endpoint.",
+          : t("order_panel_webhook_failed"),
       );
     }
   };
@@ -239,10 +237,10 @@ export function ProductOrderPanel({ product }: ProductOrderPanelProps) {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-muted">
-                Order summary
+                {t("order_panel_summary_title")}
               </h3>
               <p className="mt-1 text-lg font-semibold text-primary">
-                {order.total ?? "Pending"} TZS
+                {order.total ?? t("order_panel_pending")} TZS
               </p>
             </div>
             <span className="inline-flex items-center rounded-full bg-brand-soft px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
@@ -251,16 +249,17 @@ export function ProductOrderPanel({ product }: ProductOrderPanelProps) {
           </div>
 
           <div className="rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] px-4 py-4 text-xs text-secondary shadow-inner">
-            <p className="font-semibold text-primary">Delivery instructions</p>
+            <p className="font-semibold text-primary">
+              {t("order_panel_summary_delivery_title")}
+            </p>
             <p className="mt-1">
-              Our logistics desk will contact you within 30 minutes to finalise staging windows
-              and gate passes.
+              {t("order_panel_summary_delivery_note")}
             </p>
           </div>
 
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-              Items confirmed
+              {t("order_panel_summary_items")}
             </h4>
             <ul className="mt-3 space-y-2 text-sm text-secondary">
               {order.items.map((item) => (
@@ -286,19 +285,27 @@ export function ProductOrderPanel({ product }: ProductOrderPanelProps) {
             onClick={handleCreatePayment}
             className="inline-flex w-full items-center justify-center rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.01] hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {processingPayment ? "Preparing payment..." : t("order_panel_payment")}
+            {processingPayment
+              ? t("order_panel_payment_processing")
+              : t("order_panel_payment")}
           </button>
             {payment && (
               <div className="rounded-2xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-4 text-xs text-emerald-500">
                 <p className="font-semibold text-emerald-600">
-                  Payment ready for reconciliation
+                  {t("order_panel_payment_ready")}
                 </p>
                 <ul className="mt-2 space-y-1">
                   <li>
-                    <span className="font-semibold">Status:</span> {payment.status}
+                    <span className="font-semibold">
+                      {t("order_panel_payment_status")}
+                    </span>{" "}
+                    {payment.status}
                   </li>
                   <li>
-                    <span className="font-semibold">Tx Ref:</span> {payment.tx_ref ?? "Pending"}
+                    <span className="font-semibold">
+                      {t("order_panel_payment_tx")}
+                    </span>{" "}
+                    {payment.tx_ref ?? t("order_panel_pending")}
                   </li>
                 </ul>
                 <button

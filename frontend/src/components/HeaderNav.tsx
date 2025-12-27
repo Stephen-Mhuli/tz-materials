@@ -138,7 +138,7 @@ export function HeaderNav() {
             type="button"
             onClick={() => setMenuOpen((prev) => !prev)}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--border-muted)] text-lg text-primary md:hidden"
-            aria-label="Toggle navigation"
+            aria-label={t("nav_menu_toggle")}
           >
             {menuOpen ? "✕" : "☰"}
           </button>

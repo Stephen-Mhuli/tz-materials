@@ -52,21 +52,27 @@ export function ProductsHero() {
         </div>
         <div className="grid w-full max-w-md gap-4 rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] p-6 shadow-inner">
           <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-muted">Quality assurance</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-muted">
+              {t("products_quality_title")}
+            </p>
             <p className="mt-1 text-sm text-secondary">
-              ISO-certified sourcing, batch-tested deliveries, and full traceability per shipment.
+              {t("products_quality_copy")}
             </p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-muted">Logistics sync</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-muted">
+              {t("products_logistics_title")}
+            </p>
             <p className="mt-1 text-sm text-secondary">
-              Multi-drop scheduling across Dar, Arusha, and Dodoma with GPS load tracking.
+              {t("products_logistics_copy")}
             </p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-muted">Dedicated coordinators</p>
+            <p className="text-xs uppercase tracking-[0.18em] text-muted">
+              {t("products_coordinators_title")}
+            </p>
             <p className="mt-1 text-sm text-secondary">
-              Buyers receive a single point-of-contact to align specs, testing, and delivery.
+              {t("products_coordinators_copy")}
             </p>
           </div>
         </div>

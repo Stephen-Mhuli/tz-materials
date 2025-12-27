@@ -91,7 +91,7 @@ export default function CartPage() {
       setError(
         err instanceof Error
           ? err.message
-          : "Failed to create the order from cart.",
+          : t("cart_checkout_failed"),
       );
     } finally {
       setSubmitting(false);

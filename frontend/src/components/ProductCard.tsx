@@ -58,13 +58,15 @@ export function ProductCard({ product }: ProductCardProps) {
           </p>
         ) : (
           <p className="text-sm leading-relaxed text-muted">
-            Premium-grade inventory sourced and validated by LMGa Construction Solutions.
+            {t("product_card_fallback_copy")}
           </p>
         )}
 
         <div className="grid grid-cols-2 gap-3 text-xs">
           <div className="rounded-2xl border border-[color:var(--border-muted)] bg-brand-soft px-3 py-3">
-            <p className="text-[11px] uppercase tracking-wide text-muted">Unit</p>
+            <p className="text-[11px] uppercase tracking-wide text-muted">
+              {t("product_card_unit_label")}
+            </p>
             <p className="mt-1 text-sm font-semibold text-primary capitalize">
               {product.unit}
             </p>
