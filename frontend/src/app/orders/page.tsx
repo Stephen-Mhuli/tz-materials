@@ -64,6 +64,15 @@ function OrdersPanel() {
     return totals;
   }, [orders]);
 
+  const formatOrderCode = (order: Order) => {
+    const date = new Date(order.created_at);
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    const short = order.id.replace(/-/g, "").slice(0, 4).toUpperCase();
+    return `ORD-${y}-${m}${d}-${short}`;
+  };
+
   return (
     <div className="space-y-6">
       <header>
@@ -140,10 +149,13 @@ function OrdersPanel() {
                   className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-6 shadow-soft"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
+                  <div>
                       <h2 className="text-lg font-semibold text-primary">
                         {t("orders_card_title")}
                       </h2>
+                      <p className="mt-1 text-sm font-semibold text-[color:var(--brand)]">
+                        {formatOrderCode(order)}
+                      </p>
                       <p className="text-xs uppercase tracking-[0.18em] text-muted">
                         {new Date(order.created_at).toLocaleString()}
                       </p>

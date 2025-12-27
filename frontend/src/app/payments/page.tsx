@@ -121,6 +121,15 @@ function PaymentsPanel() {
     );
   }, [orders]);
 
+  const formatOrderCode = (order: Order) => {
+    const date = new Date(order.created_at);
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    const short = order.id.replace(/-/g, "").slice(0, 4).toUpperCase();
+    return `ORD-${y}-${m}${d}-${short}`;
+  };
+
   const summary = useMemo(() => {
     const totals = {
       total: payments.length,
@@ -242,9 +251,15 @@ function PaymentsPanel() {
               </label>
               <select
                 value={form.order}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, order: event.target.value }))
-                }
+                onChange={(event) => {
+                  const orderId = event.target.value;
+                  const selected = orders.find((order) => order.id === orderId);
+                  setForm((prev) => ({
+                    ...prev,
+                    order: orderId,
+                    amount: selected?.total ? String(selected.total) : prev.amount,
+                  }));
+                }}
                 className="w-full rounded-md border border-slate-300 px-3 py-2 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200"
               >
                 <option value="">
@@ -254,6 +269,7 @@ function PaymentsPanel() {
                 </option>
                 {orderOptions.map((order) => (
                   <option key={order.id} value={order.id}>
+                    {formatOrderCode(order)} •{" "}
                     {t("payments_order_option", {
                       date: new Date(order.created_at).toLocaleDateString(),
                       total: order.total ?? "—",

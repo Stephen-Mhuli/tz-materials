@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthContext } from "@/context/AuthContext";
@@ -35,6 +35,8 @@ export function HeaderNav() {
   const { totalCount } = useCartContext();
   const [menuOpen, setMenuOpen] = useState(false);
   const [overflowOpen, setOverflowOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const overflowRef = useRef<HTMLDivElement | null>(null);
 
   const visibleLinks = useMemo(() => {
     return navLinks.filter((link) => {
@@ -67,6 +69,23 @@ export function HeaderNav() {
     setMenuOpen(false);
     setOverflowOpen(false);
   };
+
+  useEffect(() => {
+    const handleClickAway = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (menuRef.current && !menuRef.current.contains(target)) {
+        setMenuOpen(false);
+      }
+      if (overflowRef.current && !overflowRef.current.contains(target)) {
+        setOverflowOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickAway);
+    return () => {
+      document.removeEventListener("click", handleClickAway);
+    };
+  }, []);
 
   const NavLinks = ({ links }: { links: typeof navLinks }) => (
     <>
@@ -159,7 +178,7 @@ export function HeaderNav() {
         <nav className="hidden items-center gap-3 md:flex">
           <NavLinks links={primaryLinks} />
           {overflowLinks.length > 0 && (
-            <div className="relative">
+            <div className="relative" ref={overflowRef}>
               <button
                 type="button"
                 onClick={() => setOverflowOpen((prev) => !prev)}
@@ -179,7 +198,10 @@ export function HeaderNav() {
         </nav>
       </div>
       {menuOpen && (
-        <nav className="flex flex-col gap-3 rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-4 shadow-soft md:hidden">
+        <nav
+          ref={menuRef}
+          className="flex flex-col gap-3 rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-4 shadow-soft md:hidden"
+        >
           <LocaleToggle condensed />
           <NavLinks links={visibleLinks} />
         </nav>
