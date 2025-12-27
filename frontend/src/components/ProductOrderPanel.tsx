@@ -14,6 +14,7 @@ import {
 import type { Order, Payment, Product } from "@/lib/types";
 import { useAuthContext } from "@/context/AuthContext";
 import { useLocale } from "@/context/LocaleContext";
+import { useCartContext } from "@/context/CartContext";
 
 type ProductOrderPanelProps = {
   product: Product;
@@ -23,6 +24,7 @@ export function ProductOrderPanel({ product }: ProductOrderPanelProps) {
   const router = useRouter();
   const { tokens, user, isAuthenticated } = useAuthContext();
   const { t } = useLocale();
+  const { addItem } = useCartContext();
 
   const [quantity, setQuantity] = useState(1);
   const [deliveryMethod, setDeliveryMethod] = useState("pickup");
@@ -31,6 +33,7 @@ export function ProductOrderPanel({ product }: ProductOrderPanelProps) {
   const [webhookResponse, setWebhookResponse] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [cartMessage, setCartMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
 
@@ -49,6 +52,7 @@ export function ProductOrderPanel({ product }: ProductOrderPanelProps) {
     setSubmitting(true);
     setError(null);
     setStatus(null);
+    setCartMessage(null);
     setPayment(null);
     setWebhookResponse(null);
     try {
@@ -80,6 +84,13 @@ export function ProductOrderPanel({ product }: ProductOrderPanelProps) {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleAddToCart = () => {
+    setError(null);
+    setCartMessage(null);
+    addItem(product, quantity);
+    setCartMessage(t("order_panel_cart_added"));
   };
 
   const handleCreatePayment = async () => {
@@ -191,15 +202,27 @@ export function ProductOrderPanel({ product }: ProductOrderPanelProps) {
         </div>
         <div className="sm:col-span-2">
           <button
+            type="button"
+            onClick={handleAddToCart}
+            className="mb-3 inline-flex w-full items-center justify-center rounded-full border border-[color:var(--border-muted)] px-5 py-3 text-sm font-semibold text-primary transition hover:bg-brand-soft"
+          >
+            {t("order_panel_add_to_cart")}
+          </button>
+          <button
             type="submit"
             disabled={!isAuthenticated || submitting}
             className="inline-flex w-full items-center justify-center rounded-full bg-[color:var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.01] hover:shadow-strong disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[color:var(--brand-strong)]"
           >
-            {submitting ? "Placing order..." : t("order_panel_submit")}
+            {submitting ? t("order_panel_submitting") : t("order_panel_submit")}
           </button>
         </div>
       </form>
 
+      {cartMessage && (
+        <div className="mt-4 rounded-2xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-500">
+          {cartMessage}
+        </div>
+      )}
       {status && (
         <div className="mt-4 rounded-2xl border border-emerald-400/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-500">
           {status}

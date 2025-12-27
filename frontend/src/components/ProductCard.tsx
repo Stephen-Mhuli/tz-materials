@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useLocale } from "@/context/LocaleContext";
+import { useCartContext } from "@/context/CartContext";
 import type { Product } from "@/lib/types";
 import { getProductFallbackImage, resolveProductImage } from "@/lib/images";
 
@@ -13,6 +14,7 @@ type ProductCardProps = {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { t } = useLocale();
+  const { addItem } = useCartContext();
   const [useFallbackImage, setUseFallbackImage] = useState(false);
   const primaryImage = resolveProductImage(product);
   const fallbackImage = getProductFallbackImage(product.category);
@@ -21,6 +23,10 @@ export function ProductCard({ product }: ProductCardProps) {
   useEffect(() => {
     setUseFallbackImage(false);
   }, [product.id]);
+
+  const handleAddToCart = () => {
+    addItem(product, 1);
+  };
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] shadow-soft transition hover:-translate-y-1 hover:shadow-strong">
@@ -83,12 +89,21 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        <Link
-          href={`/products/${product.id}`}
-          className="mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02] hover:shadow-strong dark:bg-[color:var(--brand-strong)]"
-        >
-          {t("product_card_cta")} →
-        </Link>
+        <div className="mt-auto grid gap-3">
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-muted)] px-4 py-2 text-sm font-semibold text-primary transition hover:bg-brand-soft"
+          >
+            {t("product_card_add")}
+          </button>
+          <Link
+            href={`/products/${product.id}`}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02] hover:shadow-strong dark:bg-[color:var(--brand-strong)]"
+          >
+            {t("product_card_cta")} →
+          </Link>
+        </div>
       </div>
     </article>
   );

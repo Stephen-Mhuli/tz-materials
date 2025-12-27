@@ -7,6 +7,7 @@ import { useAuthContext } from "@/context/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LocaleToggle } from "@/components/LocaleToggle";
 import { useLocale } from "@/context/LocaleContext";
+import { useCartContext } from "@/context/CartContext";
 
 const navLinks = [
   { href: "/", labelKey: "nav_home", public: true },
@@ -14,6 +15,7 @@ const navLinks = [
   { href: "/dashboard", labelKey: "nav_dashboard", auth: true },
   { href: "/orders", labelKey: "nav_orders", auth: true },
   { href: "/payments", labelKey: "nav_payments", auth: true },
+  { href: "/cart", labelKey: "nav_cart", public: true },
   {
     href: "/seller",
     labelKey: "nav_seller_tools",
@@ -31,6 +33,7 @@ export function HeaderNav() {
   const pathname = usePathname();
   const { isAuthenticated, user, logout } = useAuthContext();
   const { t } = useLocale();
+  const { totalCount } = useCartContext();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const visibleLinks = useMemo(() => {
@@ -57,6 +60,7 @@ export function HeaderNav() {
     <>
       {visibleLinks.map((link) => {
         const isActive = pathname === link.href;
+        const isCart = link.href === "/cart";
         return (
           <Link
             key={link.href}
@@ -68,7 +72,14 @@ export function HeaderNav() {
                 : "text-muted hover:bg-brand-soft hover:text-primary"
             }`}
           >
-            {t(link.labelKey)}
+            <span className="relative inline-flex items-center">
+              {t(link.labelKey)}
+              {isCart && totalCount > 0 && (
+                <span className="ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-[color:var(--brand)] px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                  {totalCount}
+                </span>
+              )}
+            </span>
           </Link>
         );
       })}
