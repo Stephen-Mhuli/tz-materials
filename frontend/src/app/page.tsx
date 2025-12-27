@@ -36,33 +36,12 @@ export default function HomePage() {
     },
   ];
 
-  const caseStudies = [
-    {
-      title: t("case_study1_title"),
-      challenge: t("case_study1_challenge"),
-      solution: t("case_study1_solution"),
-      outcome: t("case_study1_outcome"),
-    },
-    {
-      title: t("case_study2_title"),
-      challenge: t("case_study2_challenge"),
-      solution: t("case_study2_solution"),
-      outcome: t("case_study2_outcome"),
-    },
-  ];
-
   const capabilityHighlights = [
     {
       title: t("capability_supply_title"),
       description: t("capability_supply_desc"),
       ctaLabel: t("capability_supply_cta"),
       ctaHref: "/products",
-    },
-    {
-      title: t("capability_workforce_title"),
-      description: t("capability_workforce_desc"),
-      ctaLabel: t("capability_workforce_cta"),
-      ctaHref: "/payments",
     },
   ];
 
@@ -95,7 +74,7 @@ export default function HomePage() {
                 {`${t("hero_primary_cta")} →`}
               </Link>
               <Link
-                href="/orders"
+                href="/register"
                 className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-muted)] px-6 py-3 text-sm font-semibold text-primary transition hover:bg-brand-soft"
               >
                 {t("hero_secondary_cta")}
@@ -163,54 +142,11 @@ export default function HomePage() {
         variants={fadeUp}
       >
         <header className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted">{t("case_studies_badge")}</p>
-          <h2 className="text-2xl font-semibold text-primary sm:text-3xl">
-            {t("case_studies_heading")}
-          </h2>
-        </header>
-        <div className="grid gap-6 md:grid-cols-2">
-          {caseStudies.map((study) => (
-            <motion.article
-              key={study.title}
-              className="space-y-4 rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] px-6 py-6 shadow-soft"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.45 }}
-            >
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-muted">Project</p>
-                <h3 className="mt-2 text-lg font-semibold text-primary">{study.title}</h3>
-              </div>
-              <div className="space-y-3 text-sm text-secondary">
-                <p>
-                  <strong className="text-primary">Challenge:</strong> {study.challenge}
-                </p>
-                <p>
-                  <strong className="text-primary">LMGa solution:</strong> {study.solution}
-                </p>
-                <p>
-                  <strong className="text-primary">Outcome:</strong> {study.outcome}
-                </p>
-              </div>
-            </motion.article>
-          ))}
-        </div>
-      </motion.section>
-
-      <motion.section
-        className="space-y-8"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-        variants={fadeUp}
-      >
-        <header className="space-y-3">
           <p className="text-xs uppercase tracking-[0.2em] text-muted">
             {t("capability_section_badge")}
           </p>
           <h2 className="text-2xl font-semibold text-primary sm:text-3xl">
-            {t("capability_supply_title")} &amp; {t("capability_workforce_title")}
+            {t("capability_supply_title")}
           </h2>
         </header>
         <div className="grid gap-6 md:grid-cols-2">
@@ -251,17 +187,11 @@ export default function HomePage() {
         </p>
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
-            href="/payments"
-            className="inline-flex items-center justify-center rounded-full bg-[color:var(--brand)] px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.01] hover:shadow-strong dark:bg-[color:var(--brand-strong)]"
-          >
-            {t("landing_call_primary")}
-          </Link>
-          <a
-            href="tel:+255700000001"
+            href="/about-us"
             className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-muted)] px-6 py-3 text-sm font-semibold text-primary transition hover:bg-brand-soft"
           >
             {t("landing_call_secondary")}
-          </a>
+          </Link>
         </div>
       </motion.section>
     </div>

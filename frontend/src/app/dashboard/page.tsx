@@ -1,11 +1,71 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { useAuthContext } from "@/context/AuthContext";
 import { AuthGuard } from "@/components/AuthGuard";
+import { useLocale } from "@/context/LocaleContext";
+import { fetchMyProducts, fetchSellerProfile } from "@/lib/api";
+import type { Product } from "@/lib/types";
 
 export default function DashboardPage() {
-  const { user } = useAuthContext();
+  const { user, tokens } = useAuthContext();
+  const { t } = useLocale();
+  const [sellerProducts, setSellerProducts] = useState<Product[]>([]);
+  const [inventoryLoading, setInventoryLoading] = useState(false);
+  const [inventoryError, setInventoryError] = useState<string | null>(null);
+
+  const showInventory = user?.role === "seller_admin" && Boolean(tokens?.access);
+
+  useEffect(() => {
+    if (!showInventory || !tokens?.access) return;
+    const load = async () => {
+      setInventoryLoading(true);
+      setInventoryError(null);
+      try {
+        const sellerRecords = await fetchSellerProfile(tokens.access);
+        if (sellerRecords.length === 0) {
+          setSellerProducts([]);
+          return;
+        }
+        const sellerRecord = sellerRecords[0];
+        const products = await fetchMyProducts(tokens.access, sellerRecord.id);
+        setSellerProducts(products);
+      } catch (error) {
+        setInventoryError(
+          error instanceof Error
+            ? error.message
+            : "Failed to load seller inventory.",
+        );
+      } finally {
+        setInventoryLoading(false);
+      }
+    };
+    void load();
+  }, [showInventory, tokens?.access]);
+
+  const inventoryMetrics = useMemo(() => {
+    if (!sellerProducts.length) {
+      return { totalCount: 0, totalStock: 0, totalValue: 0, avgPrice: 0 };
+    }
+    const totalStock = sellerProducts.reduce(
+      (sum, product) => sum + Number(product.stock ?? 0),
+      0,
+    );
+    const totalValue = sellerProducts.reduce(
+      (sum, product) => sum + Number(product.price ?? 0) * Number(product.stock ?? 0),
+      0,
+    );
+    const avgPrice =
+      sellerProducts.reduce((sum, product) => sum + Number(product.price ?? 0), 0) /
+      sellerProducts.length;
+    return {
+      totalCount: sellerProducts.length,
+      totalStock,
+      totalValue,
+      avgPrice,
+    };
+  }, [sellerProducts]);
 
   return (
     <AuthGuard>
@@ -99,6 +159,81 @@ export default function DashboardPage() {
             </ul>
           </div>
         </section>
+
+        {showInventory && (
+          <section className="space-y-4">
+            <header className="space-y-2">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                {t("dashboard_inventory_badge")}
+              </p>
+              <h2 className="text-2xl font-semibold text-primary">
+                {t("dashboard_inventory_heading")}
+              </h2>
+              <p className="text-sm text-secondary">
+                {t("dashboard_inventory_copy")}
+              </p>
+            </header>
+
+            {inventoryError && (
+              <div className="rounded-2xl border border-red-300 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+                {inventoryError}
+              </div>
+            )}
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-3xl border border-[color:var(--border-muted)] bg-brand-soft px-5 py-6">
+                <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                  {t("catalogue_stats_catalogue")}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {inventoryLoading ? "—" : inventoryMetrics.totalCount}
+                </p>
+                <p className="text-xs text-muted">
+                  {t("dashboard_inventory_products")}
+                </p>
+              </div>
+              <div className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] px-5 py-6 shadow-sm">
+                <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                  {t("catalogue_stats_inventory")}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {inventoryLoading ? "—" : inventoryMetrics.totalStock.toLocaleString()}
+                </p>
+                <p className="text-xs text-muted">{t("product_card_stock")}</p>
+              </div>
+              <div className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] px-5 py-6 shadow-sm">
+                <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                  {t("catalogue_stats_value")}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {inventoryLoading
+                    ? "—"
+                    : inventoryMetrics.totalValue.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}{" "}
+                  TZS
+                </p>
+                <p className="text-xs text-muted">
+                  {t("dashboard_inventory_value")}
+                </p>
+              </div>
+              <div className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] px-5 py-6 shadow-sm">
+                <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                  {t("catalogue_stats_avg_price")}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {inventoryLoading
+                    ? "—"
+                    : Math.round(inventoryMetrics.avgPrice).toLocaleString()}{" "}
+                  TZS
+                </p>
+                <p className="text-xs text-muted">
+                  {t("dashboard_inventory_avg")}
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
       </div>
     </AuthGuard>
   );

@@ -23,7 +23,7 @@ export const messages: Record<Locale, Record<string, string>> = {
     hero_copy:
       "We engineer reliable supply chains for developers and contractors. From structural steel to turnkey labour mobilisation, LMGa keeps complex projects moving with verified product, certified crews, and transparent reporting.",
     hero_primary_cta: "Start a project",
-    hero_secondary_cta: "View supply success stories",
+    hero_secondary_cta: "Create an account",
     hero_metrics_projects: "Projects serviced",
     hero_metrics_delivery: "On-time delivery",
     hero_metrics_support: "Support desk",
@@ -76,7 +76,7 @@ export const messages: Record<Locale, Record<string, string>> = {
     catalogue_stats_inventory: "Inventory",
     catalogue_stats_value: "Inventory value",
     catalogue_stats_avg_price: "Average unit price",
-    capability_section_badge: "Materials & workforce divisions",
+    capability_section_badge: "Materials division",
     capability_supply_title: "Materials Supply Catalogue",
     capability_supply_desc:
       "Filter by grade, specification, or brand. Download technical data sheets and see live stock indicators.",
@@ -122,6 +122,13 @@ export const messages: Record<Locale, Record<string, string>> = {
     cart_line_total: "Line total",
     cart_view_orders: "View orders",
     cart_submitting: "Placing order...",
+    dashboard_inventory_badge: "Seller analytics",
+    dashboard_inventory_heading: "Inventory overview",
+    dashboard_inventory_copy:
+      "These figures reflect only the products published under your seller profile.",
+    dashboard_inventory_products: "Active products",
+    dashboard_inventory_value: "Based on listed stock",
+    dashboard_inventory_avg: "Average unit price",
     landing_call_heading: "Ready to align your next build with dependable supply?",
     landing_call_copy:
       "Our procurement desk responds within the hour. Share your scope requests and we’ll coordinate materials, labour, and facilities support under one contract.",
@@ -150,7 +157,7 @@ export const messages: Record<Locale, Record<string, string>> = {
     hero_copy:
       "Tunapanga minyororo ya ugavi kwa wakandarasi na wastaafu. Kuanzia chuma cha muundo hadi nguvu kazi kamili, LMGa inahakikisha miradi inaendelea kwa bidhaa zilizothibitishwa, mafundi waliothibitishwa, na taarifa wazi.",
     hero_primary_cta: "Anza mradi",
-    hero_secondary_cta: "Tazama mafanikio ya ugavi",
+    hero_secondary_cta: "Fungua akaunti",
     hero_metrics_projects: "Miradi iliyohudumiwa",
     hero_metrics_delivery: "Uwasilishaji kwa wakati",
     hero_metrics_support: "Dawati la usaidizi",
@@ -204,7 +211,7 @@ export const messages: Record<Locale, Record<string, string>> = {
     catalogue_stats_inventory: "Hifadhi",
     catalogue_stats_value: "Thamani ya hifadhi",
     catalogue_stats_avg_price: "Bei ya wastani kwa kitengo",
-    capability_section_badge: "Kitengo cha vifaa na nguvu kazi",
+    capability_section_badge: "Kitengo cha vifaa",
     capability_supply_title: "Orodha ya Ugavi wa Vifaa",
     capability_supply_desc:
       "Chuja kwa kiwango, vipimo, au chapa. Pakua karatasi za data na uone viashiria vya hisa moja kwa moja.",
@@ -250,6 +257,13 @@ export const messages: Record<Locale, Record<string, string>> = {
     cart_line_total: "Jumla ya mstari",
     cart_view_orders: "Tazama oda",
     cart_submitting: "Inaweka oda...",
+    dashboard_inventory_badge: "Takwimu za muuzaji",
+    dashboard_inventory_heading: "Muhtasari wa hifadhi",
+    dashboard_inventory_copy:
+      "Takwimu hizi zinahusu bidhaa zilizochapishwa chini ya akaunti yako.",
+    dashboard_inventory_products: "Bidhaa zinazopatikana",
+    dashboard_inventory_value: "Kulingana na hisa zilizoorodheshwa",
+    dashboard_inventory_avg: "Bei ya wastani kwa kitengo",
     landing_call_heading: "Uko tayari kuoanisha mradi wako na ugavi wa kuaminika?",
     landing_call_copy:
       "Dawati letu la ununuzi hujibu ndani ya saa moja. Shiriki maombi yako na tutaratibu vifaa, nguvu kazi, na uendeshaji chini ya kandarasi moja.",
