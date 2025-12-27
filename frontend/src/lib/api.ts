@@ -7,8 +7,25 @@ import type {
   SellerInvitation,
 } from "@/lib/types";
 
-const publicBase =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+const envPublicBase = process.env.NEXT_PUBLIC_API_BASE_URL;
+const isBrowser = typeof window !== "undefined";
+const browserOrigin = isBrowser ? window.location.origin : undefined;
+const browserHost = isBrowser ? window.location.hostname : undefined;
+const isLocalHost =
+  browserHost === "localhost" || browserHost === "127.0.0.1";
+
+let publicBase =
+  envPublicBase ?? (isBrowser ? browserOrigin ?? "" : "http://localhost:8000");
+
+if (
+  isBrowser &&
+  envPublicBase &&
+  (envPublicBase.includes("localhost") || envPublicBase.includes("127.0.0.1")) &&
+  !isLocalHost
+) {
+  publicBase = browserOrigin ?? envPublicBase;
+}
+
 const internalBase = process.env.INTERNAL_API_BASE_URL ?? publicBase;
 
 export const apiBaseUrl =
