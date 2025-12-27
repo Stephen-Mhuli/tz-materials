@@ -5,6 +5,19 @@ import { Providers } from "@/components/Providers";
 import { HeaderNav } from "@/components/HeaderNav";
 import { AppFooter } from "@/components/AppFooter";
 import { InitialLoader } from "@/components/InitialLoader";
+import Script from "next/script";
+
+const themeScript = `
+(() => {
+  try {
+    const key = "lmga-theme";
+    const stored = localStorage.getItem(key);
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const theme = stored === "light" || stored === "dark" ? stored : (prefersDark ? "dark" : "light");
+    document.documentElement.dataset.theme = theme;
+  } catch (e) {}
+})();
+`;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +41,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="light">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script id="theme-script" strategy="beforeInteractive">
+          {themeScript}
+        </Script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-page text-primary antialiased min-h-screen`}
       >
