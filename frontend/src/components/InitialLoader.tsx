@@ -28,9 +28,8 @@ export function InitialLoader() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-page">
-      <div className="flex items-center gap-3 rounded-full border border-muted bg-surface px-5 py-3 shadow-soft">
+      <div className="flex items-center rounded-full border border-muted bg-surface p-4 shadow-soft">
         <span className="h-4 w-4 animate-spin rounded-full border-2 border-muted border-t-transparent" />
-        <span className="text-sm text-secondary">Loading the experience…</span>
       </div>
     </div>
   );
