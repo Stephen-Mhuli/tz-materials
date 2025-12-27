@@ -42,12 +42,6 @@ export function ProductsHero() {
             >
               {`${t("catalogue_primary_cta")} →`}
             </a>
-            <a
-              href="/payments"
-              className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-muted)] px-5 py-3 text-sm font-semibold text-primary transition hover:bg-brand-soft"
-            >
-              {t("catalogue_secondary_cta")}
-            </a>
           </div>
         </div>
         <div className="grid w-full max-w-md gap-4 rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] p-6 shadow-inner">
