@@ -15,6 +15,10 @@ class UserManager(BaseUserManager):
         extra.setdefault("is_staff", True)
         extra.setdefault("is_superuser", True)
         extra.setdefault("role", "ops_admin")
+        if not extra.get("email"):
+            raise ValueError("Superuser must have an email address")
+        if not extra.get("full_name"):
+            raise ValueError("Superuser must have a full name")
         return self.create_user(phone, password, **extra)
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -30,6 +34,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     USERNAME_FIELD = "phone"
+    REQUIRED_FIELDS = ["full_name", "email"]
     objects = UserManager()
     def __str__(self): return f"{self.full_name} ({self.phone})"
 
