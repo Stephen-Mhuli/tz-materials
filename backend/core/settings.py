@@ -130,6 +130,10 @@ SIMPLE_JWT = {
 
 CORS_ALLOW_ALL_ORIGINS = env.bool("CORS_ALLOW_ALL", True)
 
+# Respect reverse proxy headers for correct HTTPS URL generation.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+
 STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
 STATIC_ROOT = BASE_DIR / "static"
