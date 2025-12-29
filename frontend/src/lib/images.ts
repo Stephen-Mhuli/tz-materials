@@ -4,12 +4,38 @@ const FALLBACK_IMAGES: Record<string, string> = {
   cement: "/images/placeholders/cement.svg",
   steel: "/images/placeholders/steel.svg",
   rebar: "/images/placeholders/rebar.svg",
+  "structural-steel": "/images/placeholders/structural-steel.svg",
   aggregates: "/images/placeholders/aggregates.svg",
-  tiles: "/images/placeholders/tiles.svg",
-  lumber: "/images/placeholders/lumber.svg",
-  roofing: "/images/placeholders/roofing.svg",
+  sand: "/images/placeholders/sand.svg",
+  gravel: "/images/placeholders/gravel.svg",
+  "crushed-stone": "/images/placeholders/crushed-stone.svg",
+  blocks: "/images/placeholders/blocks.svg",
+  bricks: "/images/placeholders/bricks.svg",
   equipment: "/images/placeholders/equipment.svg",
+  scaffolding: "/images/placeholders/scaffolding.svg",
   finishes: "/images/placeholders/finishes.svg",
+  lumber: "/images/placeholders/lumber.svg",
+  tiles: "/images/placeholders/tiles.svg",
+  roofing: "/images/placeholders/roofing.svg",
+  flooring: "/images/placeholders/flooring.svg",
+  paint: "/images/placeholders/paint.svg",
+  doors: "/images/placeholders/doors.svg",
+  windows: "/images/placeholders/windows.svg",
+  glass: "/images/placeholders/glass.svg",
+  plumbing: "/images/placeholders/plumbing.svg",
+  electrical: "/images/placeholders/electrical.svg",
+  lighting: "/images/placeholders/lighting.svg",
+  sanitary: "/images/placeholders/sanitary.svg",
+  pipes: "/images/placeholders/pipes.svg",
+  insulation: "/images/placeholders/insulation.svg",
+  waterproofing: "/images/placeholders/waterproofing.svg",
+  adhesives: "/images/placeholders/adhesives.svg",
+  sealants: "/images/placeholders/sealants.svg",
+  hardware: "/images/placeholders/hardware.svg",
+  fasteners: "/images/placeholders/fasteners.svg",
+  tools: "/images/placeholders/tools.svg",
+  landscaping: "/images/placeholders/landscaping.svg",
+  "road-works": "/images/placeholders/road-works.svg",
 };
 
 const ABSOLUTE_URL_PATTERN = /^([a-z]+:)?\/\//i;
@@ -46,6 +72,16 @@ function normaliseToAbsoluteUrl(candidate: string): string | null {
   }
 }
 
+export function resolveImageUrls(images?: string[] | null): string[] {
+  if (!images?.length) return [];
+  const normalized = images
+    .map((value) =>
+      typeof value === "string" ? normaliseToAbsoluteUrl(value) : null,
+    )
+    .filter((value): value is string => Boolean(value));
+  return Array.from(new Set(normalized));
+}
+
 export function resolveProductImage(product: Product): string {
   const candidate = product.images?.find(
     (value) => typeof value === "string" && value.trim().length > 0,
@@ -60,6 +96,12 @@ export function resolveProductImage(product: Product): string {
 
   const key = product.category?.toLowerCase() ?? "";
   return FALLBACK_IMAGES[key] ?? FALLBACK_IMAGES.cement;
+}
+
+export function resolveProductImages(product: Product): string[] {
+  const images = resolveImageUrls(product.images);
+  if (images.length > 0) return images;
+  return [getProductFallbackImage(product.category)];
 }
 
 export function getProductFallbackImage(category?: string | null): string {

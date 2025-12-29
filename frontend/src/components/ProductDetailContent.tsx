@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useLocale } from "@/context/LocaleContext";
 import type { Product } from "@/lib/types";
 import { ProductOrderPanel } from "@/components/ProductOrderPanel";
-import { getProductFallbackImage, resolveProductImage } from "@/lib/images";
+import { resolveProductImages } from "@/lib/images";
 
 type ProductDetailContentProps = {
   product: Product;
@@ -13,29 +13,55 @@ type ProductDetailContentProps = {
 
 export function ProductDetailContent({ product }: ProductDetailContentProps) {
   const { t } = useLocale();
-  const [useFallbackImage, setUseFallbackImage] = useState(false);
-  const primaryImage = resolveProductImage(product);
-  const fallbackImage = getProductFallbackImage(product.category);
-  const imageSrc = useFallbackImage ? fallbackImage : primaryImage;
+  const images = resolveProductImages(product);
+  const [activeIndex, setActiveIndex] = useState(0);
   const price = Number(product.price ?? 0);
 
   useEffect(() => {
-    setUseFallbackImage(false);
+    setActiveIndex(0);
   }, [product.id]);
+
+  const handlePrev = () => {
+    setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleNext = () => {
+    setActiveIndex((prev) => (prev + 1) % images.length);
+  };
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
       <section className="space-y-8 rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] shadow-soft">
         <div className="relative h-80 w-full overflow-hidden rounded-t-3xl">
           <Image
-            src={imageSrc}
+            src={images[activeIndex]}
             alt={product.name}
             fill
             className="object-cover"
             priority
-            onError={() => setUseFallbackImage(true)}
+            unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+          {images.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={handlePrev}
+                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 px-3 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-black/60"
+                aria-label={t("product_gallery_prev")}
+              >
+                ←
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 px-3 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-black/60"
+                aria-label={t("product_gallery_next")}
+              >
+                →
+              </button>
+            </>
+          )}
           <div className="absolute left-8 right-8 bottom-8 flex flex-col gap-4 text-white sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-white/70">
@@ -61,6 +87,35 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
             </div>
           </div>
         </div>
+        {images.length > 1 && (
+          <div className="-mt-4 flex flex-wrap gap-3 px-6 sm:px-10">
+            {images.map((src, index) => {
+              const isActive = index === activeIndex;
+              return (
+                <button
+                  key={`${src}-${index}`}
+                  type="button"
+                  onClick={() => setActiveIndex(index)}
+                  className={`relative h-16 w-20 overflow-hidden rounded-2xl border transition ${
+                    isActive
+                      ? "border-[color:var(--brand-strong)] shadow-soft"
+                      : "border-[color:var(--border-muted)]"
+                  }`}
+                  aria-label={t("product_gallery_thumb", { index: index + 1 })}
+                >
+                  <Image
+                    src={src}
+                    alt={product.name}
+                    fill
+                    sizes="80px"
+                    className="object-cover"
+                    unoptimized
+                  />
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <div className="space-y-6 px-6 pb-6 sm:px-10">
           <div className="grid gap-4 rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-5 py-6 sm:grid-cols-3">

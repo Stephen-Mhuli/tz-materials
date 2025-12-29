@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { AuthGuard } from "@/components/AuthGuard";
 import { useAuthContext } from "@/context/AuthContext";
@@ -11,10 +12,16 @@ import {
   deleteProduct,
   fetchMyProducts,
   fetchSellerProfile,
+  uploadProductImage,
   type CreateProductPayload,
   updateProduct,
 } from "@/lib/api";
 import type { Product, Seller } from "@/lib/types";
+import {
+  getProductFallbackImage,
+  resolveImageUrls,
+  resolveProductImage,
+} from "@/lib/images";
 
 export default function NewProductPage() {
   return (
@@ -79,9 +86,13 @@ function ProductComposer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
 
   const [form, setForm] = useState<CreateProductPayload>({
     name: "",
@@ -92,6 +103,18 @@ function ProductComposer() {
     stock: 0,
     brand: "",
   });
+
+  useEffect(() => {
+    if (imageFiles.length === 0) {
+      setImagePreviews([]);
+      return;
+    }
+    const previewUrls = imageFiles.map((file) => URL.createObjectURL(file));
+    setImagePreviews(previewUrls);
+    return () => {
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [imageFiles]);
 
   useEffect(() => {
     if (!tokens?.access) return;
@@ -146,13 +169,26 @@ function ProductComposer() {
     event.preventDefault();
     if (!tokens?.access) return;
     setSaving(true);
+    setImageUploading(false);
     setSuccessMessage(null);
     setError(null);
     try {
+      let uploadedImages: string[] | undefined;
+      if (imageFiles.length > 0) {
+        setImageUploading(true);
+        const urls = await Promise.all(
+          imageFiles.map((file) => uploadProductImage(tokens.access, file)),
+        );
+        uploadedImages = urls;
+      }
+
       const payload: CreateProductPayload = {
         ...form,
         price: Number(form.price),
         stock: Number(form.stock),
+        ...(uploadedImages
+          ? { images: [...existingImages, ...uploadedImages] }
+          : {}),
       };
       if (editingProductId) {
         const updated = await updateProduct(tokens.access, editingProductId, payload);
@@ -177,6 +213,9 @@ function ProductComposer() {
         stock: 0,
         brand: "",
       });
+      setImageFiles([]);
+      setImagePreviews([]);
+      setExistingImages([]);
     } catch (err) {
       setError(
         err instanceof Error
@@ -187,6 +226,7 @@ function ProductComposer() {
       );
     } finally {
       setSaving(false);
+      setImageUploading(false);
     }
   };
 
@@ -215,6 +255,9 @@ function ProductComposer() {
       stock: Number(product.stock),
       brand: product.brand ?? "",
     });
+    setImageFiles([]);
+    setImagePreviews([]);
+    setExistingImages(resolveImageUrls(product.images));
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -233,6 +276,9 @@ function ProductComposer() {
       stock: 0,
       brand: "",
     });
+    setImageFiles([]);
+    setImagePreviews([]);
+    setExistingImages([]);
   };
 
   const handleDeleteProduct = async (productId: string) => {
@@ -375,6 +421,86 @@ function ProductComposer() {
             onChange={(value) => setForm((prev) => ({ ...prev, brand: value }))}
             placeholder={t("product_new_brand_placeholder")}
           />
+          <div className="space-y-2 sm:col-span-2">
+            <label className="text-sm font-medium text-primary">
+              {t("product_new_image_label")}
+            </label>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="relative h-28 w-40 overflow-hidden rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)]">
+                <Image
+                  src={
+                    imagePreviews[0] ??
+                    existingImages[0] ??
+                    getProductFallbackImage(form.category)
+                  }
+                  alt={form.name || t("product_new_name_label")}
+                  fill
+                  sizes="160px"
+                  className="object-cover"
+                  unoptimized
+                />
+              </div>
+              <div className="flex-1 space-y-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(event) => {
+                    const files = Array.from(event.target.files ?? []);
+                    setImageFiles(files);
+                  }}
+                  className="w-full rounded-xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-2 text-sm text-primary shadow-inner outline-none transition focus:border-[color:var(--brand-strong)] focus:ring-2 focus:ring-[color:var(--brand-soft)]"
+                />
+                <p className="text-xs text-muted">
+                  {t("product_new_image_helper")}
+                </p>
+                {imageFiles.length > 0 && (
+                  <p className="text-xs text-muted">
+                    {imageFiles.map((file) => file.name).join(", ")}
+                  </p>
+                )}
+                {imageUploading && (
+                  <p className="text-xs text-muted">
+                    {t("product_new_image_uploading")}
+                  </p>
+                )}
+              </div>
+            </div>
+            {(existingImages.length > 0 || imagePreviews.length > 1) && (
+              <div className="flex flex-wrap gap-3">
+                {existingImages.map((src) => (
+                  <div
+                    key={src}
+                    className="relative h-16 w-20 overflow-hidden rounded-xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)]"
+                  >
+                    <Image
+                      src={src}
+                      alt={form.name || "product"}
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                ))}
+                {imagePreviews.map((src) => (
+                  <div
+                    key={src}
+                    className="relative h-16 w-20 overflow-hidden rounded-xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)]"
+                  >
+                    <Image
+                      src={src}
+                      alt={form.name || "product"}
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <InputField
             label={t("product_new_unit_label")}
             required
@@ -422,7 +548,7 @@ function ProductComposer() {
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <button
             type="submit"
-            disabled={saving}
+            disabled={saving || imageUploading}
             className="inline-flex items-center rounded-full bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:scale-[1.01] hover:shadow-strong disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[color:var(--brand-strong)]"
           >
             {saving
@@ -481,7 +607,17 @@ function ProductComposer() {
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.35 }}
               >
-                <div className="relative h-32 w-full bg-brand-soft" />
+                <div className="relative h-32 w-full overflow-hidden">
+                <Image
+                  src={resolveProductImage(product)}
+                  alt={product.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover"
+                  unoptimized
+                />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                </div>
                 <div className="flex flex-1 flex-col gap-4 px-5 py-5">
                   <div>
                     <h3 className="text-lg font-semibold text-primary">{product.name}</h3>

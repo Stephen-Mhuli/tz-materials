@@ -1,16 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640">
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="steelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#4d5966"/>
-      <stop offset="100%" stop-color="#2c3e50"/>
+    <linearGradient id="g" x1="0" y1="0" x2="800" y2="600" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#b86262" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#f9bc89" stop-opacity="0.75"/>
     </linearGradient>
   </defs>
-  <rect width="960" height="640" fill="url(#steelGradient)"/>
-  <path d="M140 540 L220 100 L280 100 L360 540 Z" fill="#5f6e7d" opacity="0.4"/>
-  <path d="M400 540 L480 120 L540 120 L620 540 Z" fill="#8a99a7" opacity="0.35"/>
-  <path d="M660 540 L740 160 L800 160 L880 540 Z" fill="#6c7a89" opacity="0.3"/>
-  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
-        font-family="Arial, sans-serif" font-size="72" fill="#ecf0f1" opacity="0.85">
-    STEEL
-  </text>
+  <rect width="800" height="600" fill="#0f172a"/>
+  <rect x="60" y="70" width="680" height="460" rx="36" fill="url(#g)" opacity="0.35"/>
+  <rect x="120" y="120" width="560" height="300" rx="28" fill="#b86262" opacity="0.18"/>
+  <circle cx="170" cy="165" r="26" fill="#f9bc89" opacity="0.6"/>
+  <text x="160" y="330" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#e2e8f0">Steel</text>
+  <text x="160" y="370" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="500" fill="#e2e8f0" opacity="0.7">LMGa catalogue placeholder</text>
 </svg>

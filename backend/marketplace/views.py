@@ -1,6 +1,10 @@
+import uuid
+from django.core.files.storage import default_storage
+from django.utils.text import get_valid_filename
 from rest_framework import viewsets, permissions, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from django.db import transaction
 from django.utils import timezone
@@ -67,6 +71,34 @@ class ProductViewSet(viewsets.ModelViewSet):
         if not membership:
             raise ValidationError("Seller profile not found for user")
         serializer.save(seller=membership.seller)
+
+    @action(
+        detail=False,
+        methods=["post"],
+        parser_classes=[MultiPartParser, FormParser],
+        permission_classes=[IsSellerOrReadOnly],
+        url_path="upload-image",
+    )
+    def upload_image(self, request):
+        uploaded = request.FILES.get("file")
+        if not uploaded:
+            return Response(
+                {"detail": "Image file is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not uploaded.content_type or not uploaded.content_type.startswith("image/"):
+            return Response(
+                {"detail": "Only image uploads are supported."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        filename = get_valid_filename(uploaded.name)
+        path = f"products/{uuid.uuid4()}-{filename}"
+        saved_path = default_storage.save(path, uploaded)
+        url = default_storage.url(saved_path)
+        if not url.startswith("http"):
+            url = request.build_absolute_uri(url)
+        return Response({"url": url})
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all().order_by("-created_at")

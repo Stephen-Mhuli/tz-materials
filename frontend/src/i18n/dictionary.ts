@@ -365,6 +365,10 @@ export const messages: Record<Locale, Record<string, string>> = {
     product_new_name_label: "Product name",
     product_new_name_placeholder: "Cement Bag 50kg",
     product_new_category_label: "Category",
+    product_new_image_label: "Product image (optional)",
+    product_new_image_helper:
+      "Upload a clear photo. If skipped, the category image will be used.",
+    product_new_image_uploading: "Uploading image...",
     product_new_brand_label: "Brand",
     product_new_brand_placeholder: "Twiga",
     product_new_unit_label: "Unit",
@@ -453,6 +457,9 @@ export const messages: Record<Locale, Record<string, string>> = {
       "Technical support for substitution requests, mix design adjustments, and coordinated testing.",
     product_detail_choose_item3:
       "Optional labour pairing to mobilise certified crews familiar with the material handling requirements.",
+    product_gallery_prev: "Previous image",
+    product_gallery_next: "Next image",
+    product_gallery_thumb: "View image {index}",
     order_panel_heading: "Mobilise this material",
     order_panel_login_prompt:
       "Log in to fast-track ordering, or create an account to save delivery preferences.",
@@ -889,6 +896,10 @@ export const messages: Record<Locale, Record<string, string>> = {
     product_new_name_label: "Jina la bidhaa",
     product_new_name_placeholder: "Saruji 50kg",
     product_new_category_label: "Aina",
+    product_new_image_label: "Picha ya bidhaa (hiari)",
+    product_new_image_helper:
+      "Pakia picha iliyo wazi. Ukiacha, picha ya aina itatumika.",
+    product_new_image_uploading: "Inapakia picha...",
     product_new_brand_label: "Chapa",
     product_new_brand_placeholder: "Twiga",
     product_new_unit_label: "Kipimo",
@@ -977,6 +988,9 @@ export const messages: Record<Locale, Record<string, string>> = {
       "Msaada wa kiufundi kwa mbadala, marekebisho ya mix design, na upimaji ulioratibiwa.",
     product_detail_choose_item3:
       "Uwezekano wa kuunganisha wafanyakazi walioidhinishwa kwa mahitaji ya kushughulikia vifaa.",
+    product_gallery_prev: "Picha iliyopita",
+    product_gallery_next: "Picha inayofuata",
+    product_gallery_thumb: "Tazama picha {index}",
     order_panel_heading: "Agiza kifaa hiki",
     order_panel_login_prompt:
       "Ingia ili kuharakisha mchakato wa kuagiza, au fungua akaunti kuhifadhi mapendeleo ya usafirishaji.",

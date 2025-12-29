@@ -38,6 +38,7 @@ export function ProductCard({ product }: ProductCardProps) {
           sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover transition duration-500 group-hover:scale-105"
           onError={() => setUseFallbackImage(true)}
+          unoptimized
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white">

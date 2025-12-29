@@ -57,6 +57,28 @@ type AuthResponse = {
   tokens: Tokens;
 };
 
+async function buildFriendlyError(response: Response): Promise<Error> {
+  const errorText = await response.text();
+  const trimmedError = errorText.trim();
+  const looksLikeHtml = /<!doctype html|<html/i.test(trimmedError);
+  let friendly = `Request failed (${response.status} ${response.statusText})`;
+  let detail: string | undefined;
+  try {
+    const parsed = JSON.parse(errorText);
+    detail = parsed?.detail ?? parsed?.error ?? parsed?.message;
+  } catch {
+    /* ignore */
+  }
+  if (detail) {
+    friendly = detail;
+  } else if (trimmedError && !looksLikeHtml) {
+    friendly = `${friendly}: ${trimmedError}`;
+  } else if (response.status >= 500) {
+    friendly = "Server error. Please try again in a moment.";
+  }
+  return new Error(friendly);
+}
+
 async function apiRequest(
   path: string,
   options: RequestInit & { token?: string } = {},
@@ -72,26 +94,7 @@ async function apiRequest(
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    const trimmedError = errorText.trim();
-    const looksLikeHtml = /<!doctype html|<html/i.test(trimmedError);
-    let friendly = `Request failed (${response.status} ${response.statusText})`;
-    let detail: string | undefined;
-    try {
-      const parsed = JSON.parse(errorText);
-      detail = parsed?.detail ?? parsed?.error ?? parsed?.message;
-    } catch {
-      /* ignore */
-    }
-    if (detail) {
-      friendly = detail;
-    } else if (trimmedError && !looksLikeHtml) {
-      friendly = `${friendly}: ${trimmedError}`;
-    } else if (response.status >= 500) {
-      friendly = "Server error. Please try again in a moment.";
-    }
-    const error = new Error(friendly);
-    throw error;
+    throw await buildFriendlyError(response);
   }
   return response;
 }
@@ -193,7 +196,29 @@ export type CreateProductPayload = {
   price: number;
   stock: number;
   brand?: string;
+  images?: string[];
 };
+
+export async function uploadProductImage(
+  token: string,
+  file: File,
+): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await fetch(`${apiBaseUrl}/api/products/upload-image/`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body: formData,
+  });
+  if (!response.ok) {
+    throw await buildFriendlyError(response);
+  }
+  const data = (await response.json()) as { url?: string };
+  if (!data.url) {
+    throw new Error("Upload failed. Please try again.");
+  }
+  return data.url;
+}
 
 export async function createProduct(
   token: string,
