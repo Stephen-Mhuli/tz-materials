@@ -230,43 +230,43 @@ export function HeaderNav() {
 
         <nav className="hidden items-center gap-3 md:flex">
           <NavLinks links={primaryLinks} showAuthControls={!isAuthenticated} />
-          {(overflowLinks.length > 0 || isAuthenticated) && (
-            <div className="relative" ref={overflowRef}>
-              <button
-                type="button"
-                onClick={() => setOverflowOpen((prev) => !prev)}
-                className="rounded-full px-3 py-2 text-sm font-semibold text-muted transition hover:bg-brand-soft hover:text-primary"
-                aria-haspopup="menu"
-                aria-expanded={overflowOpen}
-              >
-                {t("nav_more")}
-              </button>
-              {overflowOpen && (
-                <div className="absolute right-0 mt-2 w-64 rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-3 shadow-strong">
-                  <div className="mb-3 rounded-xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-                    {t("nav_more")}
-                  </div>
+          <div className="relative" ref={overflowRef}>
+            <button
+              type="button"
+              onClick={() => setOverflowOpen((prev) => !prev)}
+              className="rounded-full px-3 py-2 text-sm font-semibold text-muted transition hover:bg-brand-soft hover:text-primary"
+              aria-haspopup="menu"
+              aria-expanded={overflowOpen}
+            >
+              {t("nav_more")}
+            </button>
+            {overflowOpen && (
+              <div className="absolute right-0 mt-2 w-64 rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-3 shadow-strong">
+                <div className="mb-3 rounded-xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                  {t("nav_more")}
+                </div>
+                {overflowLinks.length > 0 && (
                   <div className="flex flex-col gap-1">
                     <NavLinks links={overflowLinks} variant="menu" showAuthControls={false} />
                   </div>
-                  <div className="mt-3 border-t border-[color:var(--border-muted)] pt-3">
-                    <LocaleToggle condensed />
-                    {isAuthenticated && (
-                      <div className="mt-3">
-                        <button
-                          type="button"
-                          onClick={handleLogout}
-                          className="flex w-full items-center rounded-xl border border-red-300 px-3 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-50/30 hover:text-red-600 dark:border-red-400/60 dark:hover:bg-red-500/10"
-                        >
-                          {t("nav_logout")}
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                )}
+                <div className="mt-3 border-t border-[color:var(--border-muted)] pt-3">
+                  <LocaleToggle condensed />
+                  {isAuthenticated && (
+                    <div className="mt-3">
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="flex w-full items-center rounded-xl border border-red-300 px-3 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-50/30 hover:text-red-600 dark:border-red-400/60 dark:hover:bg-red-500/10"
+                      >
+                        {t("nav_logout")}
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </nav>
       </div>
       {menuOpen && (
