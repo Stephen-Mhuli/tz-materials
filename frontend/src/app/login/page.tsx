@@ -16,7 +16,7 @@ export default function LoginPage() {
     [params],
   );
 
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -32,7 +32,7 @@ export default function LoginPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await login({ phone, password });
+      await login({ email, password });
       router.replace(nextRoute);
     } catch (err) {
       if (err instanceof Error) {
@@ -58,18 +58,18 @@ export default function LoginPage() {
       </p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-primary" htmlFor="phone">
-            {t("login_phone_label")}
+          <label className="text-sm font-medium text-primary" htmlFor="email">
+            {t("login_email_label")}
           </label>
           <input
-            id="phone"
-            name="phone"
-            type="text"
+            id="email"
+            name="email"
+            type="email"
             required
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
             className="w-full rounded-xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-2 text-sm text-primary shadow-inner outline-none transition focus:border-[color:var(--brand-strong)] focus:ring-2 focus:ring-[color:var(--brand-soft)]"
-            placeholder={t("login_phone_placeholder")}
+            placeholder={t("login_email_placeholder")}
           />
         </div>
         <div className="space-y-2">

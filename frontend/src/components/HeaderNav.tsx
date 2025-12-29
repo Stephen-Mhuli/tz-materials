@@ -20,11 +20,16 @@ const navLinks = [
     labelKey: "nav_seller_tools",
     roles: ["seller_admin", "ops_admin"],
   },
+  {
+    href: "/users",
+    labelKey: "nav_users",
+    roles: ["ops_admin"],
+  },
   { href: "/payments", labelKey: "nav_payments", auth: true },
   {
     href: "/products/new",
     labelKey: "nav_add_product",
-    roles: ["seller_admin", "seller_staff"],
+    roles: ["seller_admin", "seller_staff", "ops_admin"],
   },
 ];
 
@@ -81,6 +86,7 @@ export function HeaderNav() {
     };
 
     moveToOverflow("/seller");
+    moveToOverflow("/users");
     moveToPrimary("/payments");
     moveToPrimary("/products/new");
 

@@ -10,6 +10,7 @@ from marketplace.views import (
     OrderViewSet,
     PaymentViewSet,
     SellerInvitationViewSet,
+    UserAdminViewSet,
     payment_webhook,
 )
 from marketplace.auth_views import register, login
@@ -21,6 +22,7 @@ router.register(r"products", ProductViewSet, basename="product")
 router.register(r"orders", OrderViewSet, basename="order")
 router.register(r"payments", PaymentViewSet, basename="payment")
 router.register(r"seller-invitations", SellerInvitationViewSet, basename="seller-invitation")
+router.register(r"users", UserAdminViewSet, basename="admin-users")
 
 def health_check(request):
     return JsonResponse({"status": "ok"})

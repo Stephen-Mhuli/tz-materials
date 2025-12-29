@@ -14,6 +14,7 @@ class UserManager(BaseUserManager):
     def create_superuser(self, phone, password, **extra):
         extra.setdefault("is_staff", True)
         extra.setdefault("is_superuser", True)
+        extra.setdefault("role", "ops_admin")
         return self.create_user(phone, password, **extra)
 
 class User(AbstractBaseUser, PermissionsMixin):

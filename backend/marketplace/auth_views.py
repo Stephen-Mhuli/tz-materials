@@ -16,30 +16,47 @@ def tokens_for_user(user):
 def register(request):
     full_name = request.data.get("full_name")
     phone = request.data.get("phone")
+    email = request.data.get("email")
     password = request.data.get("password")
     role = request.data.get("role","buyer")
     if role == "seller":
         role = "seller_admin"
     if role not in ("buyer", "seller_admin"):
         role = "buyer"
-    if not all([full_name, phone, password]):
+    if not all([full_name, phone, email, password]):
         return Response({"detail":"Missing fields"}, status=400)
     if User.objects.filter(phone=phone).exists():
         return Response({"detail":"Phone already registered"}, status=400)
-    user = User.objects.create_user(phone=phone, password=password, full_name=full_name, role=role)
+    if User.objects.filter(email=email).exists():
+        return Response({"detail":"Email already registered"}, status=400)
+    kyc_status = "pending" if role == "seller_admin" else "not_required"
+    user = User.objects.create_user(
+        phone=phone,
+        password=password,
+        full_name=full_name,
+        email=email,
+        role=role,
+        kyc_status=kyc_status,
+    )
     return Response({"user": UserSerializer(user).data, "tokens": tokens_for_user(user)}, status=201)
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def login(request):
+    email = request.data.get("email")
     phone = request.data.get("phone")
     password = request.data.get("password")
-    user = authenticate(request, phone=phone, password=password)
+    user = None
+    if phone:
+        user = authenticate(request, phone=phone, password=password)
     if not user:
         # manual fallback
         try:
             from .models import User
-            user_obj = User.objects.get(phone=phone)
+            if email:
+                user_obj = User.objects.get(email__iexact=email)
+            else:
+                user_obj = User.objects.get(phone=phone)
             if not user_obj.check_password(password):
                 raise Exception()
             user = user_obj

@@ -10,6 +10,7 @@ import { useLocale } from "@/context/LocaleContext";
 import {
   createProduct,
   deleteProduct,
+  fetchProducts,
   fetchMyProducts,
   fetchSellerProfile,
   uploadProductImage,
@@ -25,7 +26,7 @@ import {
 
 export default function NewProductPage() {
   return (
-    <AuthGuard roles={["seller_admin", "seller_staff"]}>
+    <AuthGuard roles={["seller_admin", "seller_staff", "ops_admin"]}>
       <ProductComposer />
     </AuthGuard>
   );
@@ -79,8 +80,9 @@ const CATEGORY_OPTIONS = [
 ];
 
 function ProductComposer() {
-  const { tokens } = useAuthContext();
+  const { tokens, user } = useAuthContext();
   const { t } = useLocale();
+  const isOpsAdmin = user?.role === "ops_admin";
   const [seller, setSeller] = useState<Seller | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -122,6 +124,12 @@ function ProductComposer() {
     const load = async () => {
       try {
         setLoading(true);
+        if (isOpsAdmin) {
+          const allProducts = await fetchProducts();
+          setProducts(allProducts);
+          setSeller(null);
+          return;
+        }
         const [sellerRecords] = await Promise.all([
           fetchSellerProfile(tokens.access),
         ]);
@@ -147,7 +155,7 @@ function ProductComposer() {
     };
 
     void load();
-  }, [tokens?.access]);
+  }, [tokens?.access, isOpsAdmin]);
 
   const inventoryMetrics = useMemo(() => {
     if (products.length === 0) {
@@ -168,6 +176,10 @@ function ProductComposer() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!tokens?.access) return;
+    if (isOpsAdmin && !editingProductId) {
+      setError(t("product_new_ops_admin_create_note"));
+      return;
+    }
     setSaving(true);
     setImageUploading(false);
     setSuccessMessage(null);
@@ -337,6 +349,12 @@ function ProductComposer() {
           </p>
         )}
       </motion.header>
+
+      {isOpsAdmin && (
+        <div className="rounded-2xl border border-blue-200/70 bg-blue-500/10 px-4 py-3 text-sm text-blue-600">
+          {t("product_new_ops_admin_notice")}
+        </div>
+      )}
 
       {inventoryMetrics.totalCount > 0 && (
         <motion.section
@@ -548,7 +566,7 @@ function ProductComposer() {
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <button
             type="submit"
-            disabled={saving || imageUploading}
+            disabled={saving || imageUploading || (isOpsAdmin && !editingProductId)}
             className="inline-flex items-center rounded-full bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:scale-[1.01] hover:shadow-strong disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[color:var(--brand-strong)]"
           >
             {saving
@@ -559,6 +577,11 @@ function ProductComposer() {
                 ? t("product_new_save_changes")
                 : t("product_new_publish")}
           </button>
+          {isOpsAdmin && !editingProductId && (
+            <p className="text-xs text-muted">
+              {t("product_new_ops_admin_create_note")}
+            </p>
+          )}
           {editingProductId && (
             <button
               type="button"

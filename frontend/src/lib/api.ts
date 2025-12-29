@@ -41,13 +41,14 @@ type Tokens = {
 };
 
 export type LoginPayload = {
-  phone: string;
+  email: string;
   password: string;
 };
 
 export type RegisterPayload = {
   full_name: string;
   phone: string;
+  email: string;
   password: string;
   role?: string;
 };
@@ -174,6 +175,56 @@ export async function fetchSellerProfile(token: string): Promise<Seller[]> {
   });
   const data: DRFListResponse<Seller> | Seller[] = await response.json();
   return Array.isArray(data) ? data : data.results ?? [];
+}
+
+export type AdminUserStats = {
+  total_users: number;
+  buyers: number;
+  sellers: number;
+  seller_admins: number;
+  seller_staff: number;
+  ops_admins: number;
+};
+
+export async function fetchAdminUserStats(token: string): Promise<AdminUserStats> {
+  const response = await apiRequest("/api/users/stats/", {
+    method: "GET",
+    token,
+  });
+  return response.json();
+}
+
+export async function fetchAdminUsers(token: string): Promise<User[]> {
+  const response = await apiRequest("/api/users/", {
+    method: "GET",
+    token,
+  });
+  const data: DRFListResponse<User> | User[] = await response.json();
+  return Array.isArray(data) ? data : data.results ?? [];
+}
+
+export async function resetUserPassword(
+  token: string,
+  userId: string,
+  newPassword: string,
+): Promise<void> {
+  await apiRequest(`/api/users/${userId}/reset-password/`, {
+    method: "POST",
+    token,
+    body: JSON.stringify({ new_password: newPassword }),
+  });
+}
+
+export async function setUserActive(
+  token: string,
+  userId: string,
+  isActive: boolean,
+): Promise<void> {
+  await apiRequest(`/api/users/${userId}/set-active/`, {
+    method: "POST",
+    token,
+    body: JSON.stringify({ is_active: isActive }),
+  });
 }
 
 export async function createSellerProfile(

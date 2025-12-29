@@ -11,6 +11,7 @@ export type User = {
   email: string | null;
   role: UserRole;
   kyc_status: string;
+  is_active?: boolean;
 };
 
 export type Seller = {

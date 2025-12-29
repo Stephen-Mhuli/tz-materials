@@ -5,7 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuthContext } from "@/context/AuthContext";
 import { AuthGuard } from "@/components/AuthGuard";
 import { useLocale } from "@/context/LocaleContext";
-import { fetchMyProducts, fetchSellerProfile } from "@/lib/api";
+import {
+  fetchAdminUserStats,
+  fetchMyProducts,
+  fetchSellerProfile,
+} from "@/lib/api";
 import type { Product } from "@/lib/types";
 
 export default function DashboardPage() {
@@ -14,8 +18,19 @@ export default function DashboardPage() {
   const [sellerProducts, setSellerProducts] = useState<Product[]>([]);
   const [inventoryLoading, setInventoryLoading] = useState(false);
   const [inventoryError, setInventoryError] = useState<string | null>(null);
+  const [opsStats, setOpsStats] = useState<{
+    total_users: number;
+    buyers: number;
+    sellers: number;
+    seller_admins: number;
+    seller_staff: number;
+    ops_admins: number;
+  } | null>(null);
+  const [opsLoading, setOpsLoading] = useState(false);
+  const [opsError, setOpsError] = useState<string | null>(null);
 
   const showInventory = user?.role === "seller_admin" && Boolean(tokens?.access);
+  const isOpsAdmin = user?.role === "ops_admin";
 
   useEffect(() => {
     if (!showInventory || !tokens?.access) return;
@@ -43,6 +58,27 @@ export default function DashboardPage() {
     };
     void load();
   }, [showInventory, tokens?.access]);
+
+  useEffect(() => {
+    if (!isOpsAdmin || !tokens?.access) return;
+    const load = async () => {
+      setOpsLoading(true);
+      setOpsError(null);
+      try {
+        const stats = await fetchAdminUserStats(tokens.access);
+        setOpsStats(stats);
+      } catch (error) {
+        setOpsError(
+          error instanceof Error
+            ? error.message
+            : t("dashboard_inventory_failed"),
+        );
+      } finally {
+        setOpsLoading(false);
+      }
+    };
+    void load();
+  }, [isOpsAdmin, tokens?.access]);
 
   const inventoryMetrics = useMemo(() => {
     if (!sellerProducts.length) {
@@ -114,16 +150,18 @@ export default function DashboardPage() {
                   {user?.role.replace("_", " ")}
                 </dd>
               </div>
-              <div>
-                <dt className="text-xs uppercase tracking-[0.16em] text-muted">
-                  {t("dashboard_label_kyc")}
-                </dt>
-                <dd className="mt-1 inline-flex items-center rounded-full bg-brand-soft px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
-                  {user?.kyc_status === "pending"
-                    ? t("dashboard_kyc_pending")
-                    : user?.kyc_status ?? t("dashboard_kyc_pending")}
-                </dd>
-              </div>
+              {user?.role === "seller_admin" || user?.role === "seller_staff" ? (
+                <div>
+                  <dt className="text-xs uppercase tracking-[0.16em] text-muted">
+                    {t("dashboard_label_kyc")}
+                  </dt>
+                  <dd className="mt-1 inline-flex items-center rounded-full bg-brand-soft px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
+                    {user?.kyc_status === "pending"
+                      ? t("dashboard_kyc_pending")
+                      : user?.kyc_status ?? t("dashboard_kyc_pending")}
+                  </dd>
+                </div>
+              ) : null}
             </dl>
           </div>
 
@@ -173,6 +211,87 @@ export default function DashboardPage() {
             </ul>
           </div>
         </section>
+
+        {isOpsAdmin && (
+          <section className="space-y-4">
+            <header className="space-y-2">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                {t("dashboard_ops_badge")}
+              </p>
+              <h2 className="text-2xl font-semibold text-primary">
+                {t("dashboard_ops_title")}
+              </h2>
+              <p className="text-sm text-secondary">
+                {t("dashboard_ops_copy")}
+              </p>
+            </header>
+
+            {opsError && (
+              <div className="rounded-2xl border border-red-300 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+                {opsError}
+              </div>
+            )}
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="rounded-3xl border border-[color:var(--border-muted)] bg-brand-soft px-5 py-6">
+                <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                  {t("dashboard_ops_total")}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {opsLoading || !opsStats ? "—" : opsStats.total_users}
+                </p>
+              </div>
+              <div className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] px-5 py-6 shadow-sm">
+                <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                  {t("dashboard_ops_buyers")}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {opsLoading || !opsStats ? "—" : opsStats.buyers}
+                </p>
+              </div>
+              <div className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] px-5 py-6 shadow-sm">
+                <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                  {t("dashboard_ops_sellers")}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {opsLoading || !opsStats ? "—" : opsStats.sellers}
+                </p>
+              </div>
+              <div className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] px-5 py-6 shadow-sm">
+                <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                  {t("dashboard_ops_seller_admins")}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {opsLoading || !opsStats ? "—" : opsStats.seller_admins}
+                </p>
+              </div>
+              <div className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] px-5 py-6 shadow-sm">
+                <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                  {t("dashboard_ops_seller_staff")}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {opsLoading || !opsStats ? "—" : opsStats.seller_staff}
+                </p>
+              </div>
+              <div className="rounded-3xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] px-5 py-6 shadow-sm">
+                <p className="text-xs uppercase tracking-[0.2em] text-muted">
+                  {t("dashboard_ops_ops_admins")}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {opsLoading || !opsStats ? "—" : opsStats.ops_admins}
+                </p>
+              </div>
+            </div>
+
+            <Link
+              href="/users"
+              data-pressable="true"
+              className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-muted)] px-6 py-3 text-sm font-semibold text-primary transition hover:bg-brand-soft"
+            >
+              {t("dashboard_ops_users_cta")} →
+            </Link>
+          </section>
+        )}
 
         {showInventory && (
           <section className="space-y-4">

@@ -26,7 +26,7 @@ from .serializers import (
     UserSerializer,
     SellerInvitationSerializer,
 )
-from .permissions import IsSellerOrReadOnly
+from .permissions import IsSellerOrReadOnly, IsOpsAdmin
 
 
 def _get_user_seller_memberships(user):
@@ -70,6 +70,8 @@ class ProductViewSet(viewsets.ModelViewSet):
         membership = _get_user_seller_memberships(self.request.user).first()
         if not membership:
             raise ValidationError("Seller profile not found for user")
+        if self.request.user.role in ("seller_admin", "seller_staff") and not membership.seller.verified:
+            raise ValidationError("Seller profile is not verified yet.")
         serializer.save(seller=membership.seller)
 
     @action(
@@ -112,6 +114,8 @@ class OrderViewSet(viewsets.ModelViewSet):
             .prefetch_related("items", "items__product")
             .order_by("-created_at")
         )
+        if u.role in ("ops_admin",):
+            return base
         if u.role in ("seller_admin","seller_staff"):
             seller_ids = _get_user_seller_memberships(u).values_list("seller_id", flat=True)
             return base.filter(seller_id__in=seller_ids)
@@ -144,6 +148,15 @@ class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.select_related("order").order_by("-created_at")
     serializer_class = PaymentSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role in ("ops_admin",):
+            return self.queryset
+        if user.role in ("seller_admin", "seller_staff"):
+            seller_ids = _get_user_seller_memberships(user).values_list("seller_id", flat=True)
+            return self.queryset.filter(order__seller_id__in=seller_ids)
+        return self.queryset.filter(order__buyer=user)
 
 
 class SellerInvitationViewSet(viewsets.ModelViewSet):
@@ -274,6 +287,57 @@ class SellerInvitationViewSet(viewsets.ModelViewSet):
             role=SellerUser.ROLE_STAFF,
             invited_by=invitation.invited_by,
         )
+
+
+class UserAdminViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all().order_by("-created_at")
+    serializer_class = UserSerializer
+    permission_classes = [IsOpsAdmin]
+
+    @action(detail=False, methods=["get"])
+    def stats(self, request):
+        total = User.objects.count()
+        buyers = User.objects.filter(role="buyer").count()
+        seller_admins = User.objects.filter(role="seller_admin").count()
+        seller_staff = User.objects.filter(role="seller_staff").count()
+        ops_admins = User.objects.filter(role="ops_admin").count()
+        sellers = seller_admins + seller_staff
+        return Response(
+            {
+                "total_users": total,
+                "buyers": buyers,
+                "sellers": sellers,
+                "seller_admins": seller_admins,
+                "seller_staff": seller_staff,
+                "ops_admins": ops_admins,
+            }
+        )
+
+    @action(detail=True, methods=["post"], url_path="reset-password")
+    def reset_password(self, request, pk=None):
+        user = self.get_object()
+        new_password = request.data.get("new_password")
+        if not new_password or len(new_password) < 6:
+            return Response(
+                {"detail": "New password must be at least 6 characters."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        user.set_password(new_password)
+        user.save(update_fields=["password"])
+        return Response({"ok": True})
+
+    @action(detail=True, methods=["post"], url_path="set-active")
+    def set_active(self, request, pk=None):
+        user = self.get_object()
+        is_active = request.data.get("is_active")
+        if is_active is None:
+            return Response(
+                {"detail": "is_active is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        user.is_active = bool(is_active)
+        user.save(update_fields=["is_active"])
+        return Response({"ok": True, "is_active": user.is_active})
 
         invitation.status = SellerInvitation.STATUS_ACCEPTED
         invitation.accepted_at = timezone.now()

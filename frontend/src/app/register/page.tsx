@@ -19,7 +19,9 @@ export default function RegisterPage() {
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<UserRole>("buyer");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -27,11 +29,16 @@ export default function RegisterPage() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
+    if (password !== confirmPassword) {
+      setError(t("register_password_mismatch"));
+      return;
+    }
     setSubmitting(true);
     try {
       await register({
         full_name: fullName,
         phone,
+        email,
         password,
         role,
       });
@@ -86,6 +93,21 @@ export default function RegisterPage() {
           />
         </div>
         <div className="space-y-2">
+          <label className="text-sm font-medium text-primary" htmlFor="email">
+            {t("register_email_label")}
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            className="w-full rounded-xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-2 text-sm text-primary shadow-inner outline-none transition focus:border-[color:var(--brand-strong)] focus:ring-2 focus:ring-[color:var(--brand-soft)]"
+            placeholder={t("register_email_placeholder")}
+          />
+        </div>
+        <div className="space-y-2">
           <label
             className="text-sm font-medium text-primary"
             htmlFor="password"
@@ -101,6 +123,24 @@ export default function RegisterPage() {
             onChange={(event) => setPassword(event.target.value)}
             className="w-full rounded-xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-2 text-sm text-primary shadow-inner outline-none transition focus:border-[color:var(--brand-strong)] focus:ring-2 focus:ring-[color:var(--brand-soft)]"
             placeholder={t("register_password_placeholder")}
+          />
+        </div>
+        <div className="space-y-2">
+          <label
+            className="text-sm font-medium text-primary"
+            htmlFor="confirm_password"
+          >
+            {t("register_password_confirm_label")}
+          </label>
+          <input
+            id="confirm_password"
+            name="confirm_password"
+            type="password"
+            required
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+            className="w-full rounded-xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-2 text-sm text-primary shadow-inner outline-none transition focus:border-[color:var(--brand-strong)] focus:ring-2 focus:ring-[color:var(--brand-soft)]"
+            placeholder={t("register_password_confirm_placeholder")}
           />
         </div>
         <div className="space-y-2">
