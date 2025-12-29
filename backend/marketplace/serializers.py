@@ -13,7 +13,7 @@ from .models import (
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id","full_name","phone","email","role","kyc_status")
+        fields = ("id","full_name","phone","email","role","kyc_status","is_active")
 
 class SellerMemberSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)

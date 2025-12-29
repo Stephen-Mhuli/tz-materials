@@ -227,6 +227,18 @@ export async function setUserActive(
   });
 }
 
+export async function setUserKycStatus(
+  token: string,
+  userId: string,
+  status: "inactive" | "pending" | "confirmed",
+): Promise<void> {
+  await apiRequest(`/api/users/${userId}/set-kyc/`, {
+    method: "POST",
+    token,
+    body: JSON.stringify({ status }),
+  });
+}
+
 export async function createSellerProfile(
   token: string,
   payload: CreateSellerPayload,

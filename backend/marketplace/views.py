@@ -276,6 +276,7 @@ class SellerInvitationViewSet(viewsets.ModelViewSet):
             password=password,
             full_name=full_name,
             role="seller_staff",
+            kyc_status="pending",
         )
         if invitation.email and not User.objects.filter(email=invitation.email).exists():
             user.email = invitation.email
@@ -338,6 +339,48 @@ class UserAdminViewSet(viewsets.ReadOnlyModelViewSet):
         user.is_active = bool(is_active)
         user.save(update_fields=["is_active"])
         return Response({"ok": True, "is_active": user.is_active})
+
+    @action(detail=True, methods=["post"], url_path="set-kyc")
+    def set_kyc(self, request, pk=None):
+        user = self.get_object()
+        status_value = request.data.get("status")
+        allowed = {"inactive", "pending", "confirmed"}
+        if status_value not in allowed:
+            return Response(
+                {"detail": "Status must be inactive, pending, or confirmed."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if user.role not in ("seller_admin", "seller_staff"):
+            return Response(
+                {"detail": "KYC status applies to sellers only."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        seller = None
+        if user.role == "seller_admin":
+            seller = Seller.objects.filter(user=user).first()
+        if not seller:
+            membership = (
+                SellerUser.objects.filter(user=user).select_related("seller").first()
+            )
+            seller = membership.seller if membership else None
+
+        if status_value == "confirmed":
+            if seller and not seller.verified:
+                seller.verified = True
+                seller.save(update_fields=["verified"])
+            elif not seller:
+                return Response(
+                    {"detail": "Seller profile not found to confirm."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        elif user.role == "seller_admin" and seller and seller.verified:
+            seller.verified = False
+            seller.save(update_fields=["verified"])
+
+        user.kyc_status = status_value
+        user.save(update_fields=["kyc_status"])
+        return Response({"ok": True, "kyc_status": user.kyc_status})
 
         invitation.status = SellerInvitation.STATUS_ACCEPTED
         invitation.accepted_at = timezone.now()

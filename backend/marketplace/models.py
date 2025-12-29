@@ -15,6 +15,7 @@ class UserManager(BaseUserManager):
         extra.setdefault("is_staff", True)
         extra.setdefault("is_superuser", True)
         extra.setdefault("role", "ops_admin")
+        extra.setdefault("kyc_status", "not_required")
         if not extra.get("email"):
             raise ValueError("Superuser must have an email address")
         if not extra.get("full_name"):
