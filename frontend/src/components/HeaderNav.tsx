@@ -14,13 +14,13 @@ const navLinks = [
   { href: "/products", labelKey: "nav_products", public: true },
   { href: "/dashboard", labelKey: "nav_dashboard", auth: true },
   { href: "/orders", labelKey: "nav_orders", auth: true },
-  { href: "/payments", labelKey: "nav_payments", auth: true },
   { href: "/cart", labelKey: "nav_cart", public: true },
   {
     href: "/seller",
     labelKey: "nav_seller_tools",
     roles: ["seller_admin", "ops_admin"],
   },
+  { href: "/payments", labelKey: "nav_payments", auth: true },
   {
     href: "/products/new",
     labelKey: "nav_add_product",
@@ -56,13 +56,35 @@ export function HeaderNav() {
 
   const { primaryLinks, overflowLinks } = useMemo(() => {
     const maxDesktopLinks = 6;
-    if (visibleLinks.length <= maxDesktopLinks) {
-      return { primaryLinks: visibleLinks, overflowLinks: [] };
+    let primary = visibleLinks;
+    let overflow: typeof visibleLinks = [];
+
+    if (visibleLinks.length > maxDesktopLinks) {
+      primary = visibleLinks.slice(0, maxDesktopLinks);
+      overflow = visibleLinks.slice(maxDesktopLinks);
     }
-    return {
-      primaryLinks: visibleLinks.slice(0, maxDesktopLinks),
-      overflowLinks: visibleLinks.slice(maxDesktopLinks),
+
+    const moveToOverflow = (href: string) => {
+      const index = primary.findIndex((link) => link.href === href);
+      if (index !== -1) {
+        const [item] = primary.splice(index, 1);
+        overflow = [item, ...overflow];
+      }
     };
+
+    const moveToPrimary = (href: string) => {
+      const index = overflow.findIndex((link) => link.href === href);
+      if (index !== -1) {
+        const [item] = overflow.splice(index, 1);
+        primary = [...primary, item];
+      }
+    };
+
+    moveToOverflow("/seller");
+    moveToPrimary("/payments");
+    moveToPrimary("/products/new");
+
+    return { primaryLinks: primary, overflowLinks: overflow };
   }, [visibleLinks]);
 
   const handleLogout = () => {
@@ -93,22 +115,34 @@ export function HeaderNav() {
     };
   }, []);
 
-  const NavLinks = ({ links }: { links: typeof navLinks }) => (
+  const NavLinks = ({
+    links,
+    variant = "inline",
+    showAuthControls = true,
+  }: {
+    links: typeof navLinks;
+    variant?: "inline" | "menu";
+    showAuthControls?: boolean;
+  }) => (
     <>
       {links.map((link) => {
         const isActive = pathname === link.href;
         const isCart = link.href === "/cart";
+        const menuStyle =
+          variant === "menu"
+            ? "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-primary transition hover:bg-brand-soft"
+            : `rounded-full px-3 py-2 text-sm font-semibold transition ${
+                isActive
+                  ? "bg-brand-soft text-primary shadow-soft"
+                  : "text-muted hover:bg-brand-soft hover:text-primary"
+              }`;
         return (
           <Link
             key={link.href}
             href={link.href}
             onClick={() => setMenuOpen(false)}
             data-pressable="true"
-            className={`rounded-full px-3 py-2 text-sm font-semibold transition ${
-              isActive
-                ? "bg-brand-soft text-primary shadow-soft"
-                : "text-muted hover:bg-brand-soft hover:text-primary"
-            }`}
+            className={menuStyle}
           >
             <span className="relative inline-flex items-center">
               {t(link.labelKey)}
@@ -121,13 +155,17 @@ export function HeaderNav() {
           </Link>
         );
       })}
-      {!isAuthenticated ? (
+      {showAuthControls && !isAuthenticated ? (
         <>
           <Link
             href="/login"
             onClick={() => setMenuOpen(false)}
             data-pressable="true"
-            className="rounded-full px-3 py-2 text-sm font-semibold text-muted transition hover:bg-brand-soft hover:text-primary"
+            className={
+              variant === "menu"
+                ? "flex w-full items-center rounded-xl px-3 py-2 text-sm font-semibold text-primary transition hover:bg-brand-soft"
+                : "rounded-full px-3 py-2 text-sm font-semibold text-muted transition hover:bg-brand-soft hover:text-primary"
+            }
           >
             {t("nav_login")}
           </Link>
@@ -135,20 +173,28 @@ export function HeaderNav() {
             href="/register"
             onClick={() => setMenuOpen(false)}
             data-pressable="true"
-            className="inline-flex items-center rounded-full bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02] hover:shadow-strong dark:bg-[color:var(--brand-strong)]"
+            className={
+              variant === "menu"
+                ? "flex w-full items-center justify-between rounded-xl bg-[color:var(--brand)] px-3 py-2 text-sm font-semibold text-white shadow-md transition hover:shadow-strong dark:bg-[color:var(--brand-strong)]"
+                : "inline-flex items-center rounded-full bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02] hover:shadow-strong dark:bg-[color:var(--brand-strong)]"
+            }
           >
             {t("nav_register")}
           </Link>
         </>
-      ) : (
+      ) : showAuthControls && isAuthenticated ? (
         <button
           type="button"
           onClick={handleLogout}
-          className="rounded-full border border-red-300 px-3 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-50/30 hover:text-red-600 dark:border-red-400/60 dark:hover:bg-red-500/10"
+          className={
+            variant === "menu"
+              ? "flex w-full items-center rounded-xl border border-red-300 px-3 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-50/30 hover:text-red-600 dark:border-red-400/60 dark:hover:bg-red-500/10"
+              : "rounded-full border border-red-300 px-3 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-50/30 hover:text-red-600 dark:border-red-400/60 dark:hover:bg-red-500/10"
+          }
         >
           {t("nav_logout")}
         </button>
-      )}
+      ) : null}
     </>
   );
 
@@ -170,9 +216,6 @@ export function HeaderNav() {
           </Link>
 
         <div className="flex items-center gap-3">
-          <div className="hidden md:block">
-            <LocaleToggle />
-          </div>
           <ThemeToggle />
           <button
             type="button"
@@ -186,8 +229,8 @@ export function HeaderNav() {
         </div>
 
         <nav className="hidden items-center gap-3 md:flex">
-          <NavLinks links={primaryLinks} />
-          {overflowLinks.length > 0 && (
+          <NavLinks links={primaryLinks} showAuthControls={!isAuthenticated} />
+          {(overflowLinks.length > 0 || isAuthenticated) && (
             <div className="relative" ref={overflowRef}>
               <button
                 type="button"
@@ -199,8 +242,27 @@ export function HeaderNav() {
                 {t("nav_more")}
               </button>
               {overflowOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-2 shadow-soft">
-                  <NavLinks links={overflowLinks} />
+                <div className="absolute right-0 mt-2 w-64 rounded-2xl border border-[color:var(--border-muted)] bg-[color:var(--surface)] p-3 shadow-strong">
+                  <div className="mb-3 rounded-xl border border-[color:var(--border-muted)] bg-[color:var(--surface-elevated)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+                    {t("nav_more")}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <NavLinks links={overflowLinks} variant="menu" showAuthControls={false} />
+                  </div>
+                  <div className="mt-3 border-t border-[color:var(--border-muted)] pt-3">
+                    <LocaleToggle condensed />
+                    {isAuthenticated && (
+                      <div className="mt-3">
+                        <button
+                          type="button"
+                          onClick={handleLogout}
+                          className="flex w-full items-center rounded-xl border border-red-300 px-3 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-50/30 hover:text-red-600 dark:border-red-400/60 dark:hover:bg-red-500/10"
+                        >
+                          {t("nav_logout")}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
