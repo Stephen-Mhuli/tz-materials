@@ -102,6 +102,7 @@ export function ProductCard({ product }: ProductCardProps) {
           </button>
           <Link
             href={`/products/${product.id}`}
+            data-pressable="true"
             className="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02] hover:shadow-strong dark:bg-[color:var(--brand-strong)]"
           >
             {t("product_card_cta")} →

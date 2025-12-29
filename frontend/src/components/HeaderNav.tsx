@@ -103,6 +103,7 @@ export function HeaderNav() {
             key={link.href}
             href={link.href}
             onClick={() => setMenuOpen(false)}
+            data-pressable="true"
             className={`rounded-full px-3 py-2 text-sm font-semibold transition ${
               isActive
                 ? "bg-brand-soft text-primary shadow-soft"
@@ -125,6 +126,7 @@ export function HeaderNav() {
           <Link
             href="/login"
             onClick={() => setMenuOpen(false)}
+            data-pressable="true"
             className="rounded-full px-3 py-2 text-sm font-semibold text-muted transition hover:bg-brand-soft hover:text-primary"
           >
             {t("nav_login")}
@@ -132,6 +134,7 @@ export function HeaderNav() {
           <Link
             href="/register"
             onClick={() => setMenuOpen(false)}
+            data-pressable="true"
             className="inline-flex items-center rounded-full bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02] hover:shadow-strong dark:bg-[color:var(--brand-strong)]"
           >
             {t("nav_register")}

@@ -69,12 +69,14 @@ export default function HomePage() {
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/products"
+                data-pressable="true"
                 className="inline-flex items-center justify-center rounded-full bg-[color:var(--brand)] px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02] hover:shadow-strong dark:bg-[color:var(--brand-strong)]"
               >
                 {`${t("hero_primary_cta")} →`}
               </Link>
               <Link
                 href="/register"
+                data-pressable="true"
                 className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-muted)] px-6 py-3 text-sm font-semibold text-primary transition hover:bg-brand-soft"
               >
                 {t("hero_secondary_cta")}
@@ -162,6 +164,7 @@ export default function HomePage() {
               <p className="text-sm text-secondary">{highlight.description}</p>
               <Link
                 href={highlight.ctaHref}
+                data-pressable="true"
                 className="mt-auto inline-flex w-fit items-center rounded-full bg-brand-soft px-4 py-2 text-sm font-semibold text-primary transition hover:bg-[color:var(--brand)] hover:text-white"
               >
                 {highlight.ctaLabel} →
@@ -187,6 +190,7 @@ export default function HomePage() {
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/about-us"
+            data-pressable="true"
             className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-muted)] px-6 py-3 text-sm font-semibold text-primary transition hover:bg-brand-soft"
           >
             {t("landing_call_secondary")}

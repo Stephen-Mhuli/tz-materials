@@ -38,6 +38,7 @@ export function ProductsHero() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <a
               href="#catalogue"
+              data-pressable="true"
               className="inline-flex items-center justify-center rounded-full bg-[color:var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02] hover:shadow-strong dark:bg-[color:var(--brand-strong)]"
             >
               {`${t("catalogue_primary_cta")} →`}

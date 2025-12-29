@@ -500,6 +500,7 @@ function ProductComposer() {
                   <div className="mt-auto flex flex-wrap gap-2">
                     <Link
                       href={`/products/${product.id}`}
+                      data-pressable="true"
                       className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-[color:var(--border-muted)] px-3 py-2 text-xs font-semibold text-primary transition hover:bg-brand-soft"
                     >
                       {t("product_new_view")}

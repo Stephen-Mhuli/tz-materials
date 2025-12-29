@@ -114,6 +114,7 @@ export default function CartPage() {
         </div>
         <Link
           href="/products"
+          data-pressable="true"
           className="inline-flex items-center justify-center rounded-full bg-[color:var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.01] hover:shadow-strong dark:bg-[color:var(--brand-strong)]"
         >
           {t("cart_continue")}
@@ -245,6 +246,7 @@ export default function CartPage() {
           </button>
           <Link
             href="/orders"
+            data-pressable="true"
             className="inline-flex w-full items-center justify-center rounded-full border border-[color:var(--border-muted)] px-5 py-3 text-sm font-semibold text-primary transition hover:bg-brand-soft"
           >
             {t("cart_view_orders")}

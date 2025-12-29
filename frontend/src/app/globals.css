@@ -68,6 +68,33 @@ a:hover {
   text-decoration: underline;
 }
 
+a[data-pressable="true"]:hover {
+  text-decoration: none;
+}
+
+button,
+a[data-pressable="true"] {
+  transition: transform 0.08s ease, filter 0.08s ease, box-shadow 0.08s ease;
+}
+
+button:active:not(:disabled),
+a[data-pressable="true"]:active {
+  transform: translateY(1px) scale(0.98);
+  filter: brightness(0.96);
+}
+
+button:focus-visible,
+a[data-pressable="true"]:focus-visible {
+  outline: 2px solid var(--brand-strong);
+  outline-offset: 2px;
+}
+
+button:disabled,
+a[data-pressable="true"][aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .bg-page {
   background-color: var(--page);
 }
